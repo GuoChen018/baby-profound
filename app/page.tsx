@@ -1,8 +1,13 @@
-import { Badge, Button, Tag } from "@/components/ui";
+import { Badge, Button, Input, Tag } from "@/components/ui";
+import {
+  SegmentedControlPreview,
+  TogglesPreview,
+} from "@/components/ui/_preview/FormPreview";
 import {
   ArrowRight,
   CheckCircle,
   Hash,
+  Mail,
   Plus,
   Search,
   Settings,
@@ -136,6 +141,29 @@ export default function Home() {
               <Badge color="blue" icon={<Sparkles />}>AI</Badge>
               <Badge size="sm" color="amber">Pending</Badge>
               <Badge size="sm" color="purple">Pro</Badge>
+            </div>
+          </div>
+        </Section>
+
+        {/* Form controls */}
+        <Section title="Form controls">
+          <div className="space-y-24">
+            <div className="space-y-4">
+              <p className="text-mini text-text-tertiary">Input · text field</p>
+              <div className="grid grid-cols-2 gap-12 max-w-[640px]">
+                <Input placeholder="Search prompts..." iconLeft={<Search />} />
+                <Input placeholder="you@brex.com" iconLeft={<Mail />} label="Email" hint="We never share this" />
+                <Input placeholder="Disabled" disabled iconLeft={<Search />} />
+                <Input placeholder="Error state" error iconLeft={<Mail />} hint="Email is required" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <p className="text-mini text-text-tertiary">SegmentedControl · time range</p>
+              <SegmentedControlPreview />
+            </div>
+            <div className="space-y-4">
+              <p className="text-mini text-text-tertiary">Toggle</p>
+              <TogglesPreview />
             </div>
           </div>
         </Section>
