@@ -8,3 +8,5 @@ export {
   type SegmentedControlOption,
 } from "./SegmentedControl";
 export { Input, type InputProps, type InputSize } from "./Input";
+export { Select, type SelectProps, type SelectSize } from "./Select";
+export { Tooltip, type TooltipProps, type TooltipPlacement } from "./Tooltip";

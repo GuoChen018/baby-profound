@@ -1,7 +1,9 @@
 import { Badge, Button, Input, Tag } from "@/components/ui";
 import {
   SegmentedControlPreview,
+  SelectPreview,
   TogglesPreview,
+  TooltipPreview,
 } from "@/components/ui/_preview/FormPreview";
 import {
   ArrowRight,
@@ -164,6 +166,14 @@ export default function Home() {
             <div className="space-y-4">
               <p className="text-mini text-text-tertiary">Toggle</p>
               <TogglesPreview />
+            </div>
+            <div className="space-y-4">
+              <p className="text-mini text-text-tertiary">Select · filter pill</p>
+              <SelectPreview />
+            </div>
+            <div className="space-y-4">
+              <p className="text-mini text-text-tertiary">Tooltip</p>
+              <TooltipPreview />
             </div>
           </div>
         </Section>
