@@ -48,6 +48,7 @@ _reference/           # Captured context (the spec). Re-readable on demand.
 ## Conventions
 
 - **Tailwind 4 CSS-first.** All tokens live in `app/globals.css` under `@theme`. No `tailwind.config.js`.
+- **Spacing scale is 1px/unit** (`--spacing: 1px`). Every Tailwind spacing/sizing utility matches Figma px directly: `h-24 = 24px`, `gap-6 = 6px`, `p-12 = 12px`. This is a deliberate deviation from Tailwind defaults (normally 4px/unit) — it eliminates mental conversion between Figma specs and code.
 - **No shadcn/ui.** Primitives are built from scratch in `components/ui/` against captured Figma frames.
 - **`clsx` for class merging.** Use `lib/cn.ts` (re-export).
 - **Zustand for state.** One slice per feature.

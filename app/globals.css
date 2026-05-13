@@ -1,36 +1,279 @@
 @import "tailwindcss";
 
-/*
- * Tokens are populated from the Figma design system in Phase 3.
- * Source: _reference/figma/00-foundations/{Color,Text styles}/
+/* ------------------------------------------------------------------
+ * Profound design system tokens
+ * Source: _reference/figma/00-foundations/SUMMARY.md (Figma ms5KIXErDeevPJ3a1zIOcr)
  *
- * Until then, these are sane neutral defaults so the shell renders.
- */
+ * Strategy:
+ *  - Raw semantic tokens live at :root / .dark as plain CSS vars
+ *    so they're swappable at runtime via the .dark class.
+ *  - @theme inline maps those vars into Tailwind's utility namespace
+ *    (so .bg-bg-primary becomes `background-color: var(--bg-primary)`).
+ * ------------------------------------------------------------------ */
 
-@theme {
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Backgrounds — surface layers */
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafafa;
+  --bg-tertiary: #f5f5f5;
+
+  /* Fills — ink / icon / divider */
+  --fill-primary: #18181a;
+  --fill-secondary: #969696;
+  --fill-tertiary: #d4d4d8;
+  --fill-quaternary: #e8e8e8;
+  --fill-green: #15b462;
+  --fill-red: #ff5f57;
+  --fill-green-hover: #0e9c52;
+  --fill-inverse: #ffffff;
+
+  /* Controls — form / button surfaces */
+  --control-bg: #ffffff;
+  --control-hover: #fafafa;
+  --control-selected: #f1f1f1;
+  --control-primary: #18181a;
+
+  /* Text */
+  --text-primary: #18181a;
+  --text-secondary: #787878;
+  --text-tertiary: #969696;
+  --text-quaternary: #b4b4b4;
+  --text-green: #15b462;
+  --text-red: #ff5f57;
+  --text-inverse: #ffffff;
+
+  /* Shadow color tokens (used inside composite shadow recipes) */
+  --shadow-1: rgba(0, 0, 0, 0.02);
+  --shadow-2: rgba(0, 0, 0, 0.05);
+  --shadow-3: #ebebeb;
+
+  /* Badge chromatic palette (7 colors × 3 ranks)
+     Confirmed: green, blue, red, orange, yellow, purple. Pink/gray approximated. */
+  --badge-green-muted: #e8f7ee;
+  --badge-green-border: #cdedd8;
+  --badge-green-emphasis: #0d6c3a;
+  --badge-blue-muted: #eff6ff;
+  --badge-blue-border: #e0edff;
+  --badge-blue-emphasis: #1b3ea7;
+  --badge-red-muted: #fff1f0;
+  --badge-red-border: #ffe0de;
+  --badge-red-emphasis: #bf2c2a;
+  --badge-orange-muted: #fff8eb;
+  --badge-orange-border: #ffefd0;
+  --badge-orange-emphasis: #a25700;
+  --badge-yellow-muted: #fffaeb;
+  --badge-yellow-border: #fef0c7;
+  --badge-yellow-emphasis: #92722f;
+  --badge-purple-muted: #f6f3ff;
+  --badge-purple-border: #e9e1ff;
+  --badge-purple-emphasis: #5b32cc;
+  --badge-gray-muted: #f5f5f5;
+  --badge-gray-border: #e8e8e8;
+  --badge-gray-emphasis: #4a4a4a;
+
+  /* Workflow palette (Workflow Side Nav) */
+  --workflow-purple: #9362f4;
+  --workflow-green: #4ea852;
+  --workflow-blue: #4894ee;
+  --workflow-orange: #ef704a;
+
+  /* One-off brand accent (Beta pill) */
+  --accent-beta: #009aff;
+}
+
+/* Dark theme overrides (apply via `.dark` on <html>) */
+.dark {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252525;
+  --bg-tertiary: #343434;
+
+  --fill-primary: #ffffff;
+  --fill-secondary: #5a5a5a;
+  --fill-tertiary: #464646;
+  --fill-quaternary: #323232;
+  /* fill-green, fill-red, fill-inverse: theme-stable */
+
+  --control-bg: #292929;
+  --control-hover: #333333;
+  --control-selected: #393939;
+  /* control-primary: theme-stable (always #18181a) */
+
+  --text-primary: #ffffff;
+  --text-quaternary: #5a5a5a;
+  /* text-secondary, text-tertiary, text-green, text-red: theme-stable */
+
+  --shadow-1: rgba(0, 0, 0, 0);
+  --shadow-2: rgba(0, 0, 0, 0);
+  --shadow-3: #323232;
+}
+
+/* System-preference fallback for users without an explicit .dark class. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #252525;
+    --bg-tertiary: #343434;
+    --fill-primary: #ffffff;
+    --fill-secondary: #5a5a5a;
+    --fill-tertiary: #464646;
+    --fill-quaternary: #323232;
+    --control-bg: #292929;
+    --control-hover: #333333;
+    --control-selected: #393939;
+    --text-primary: #ffffff;
+    --text-quaternary: #5a5a5a;
+    --shadow-1: rgba(0, 0, 0, 0);
+    --shadow-2: rgba(0, 0, 0, 0);
+    --shadow-3: #323232;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Tailwind theme mapping
+ * ------------------------------------------------------------------ */
+
+@theme inline {
+  /* Fonts */
+  --font-sans: var(--font-inter), "Inter Variable", "Inter", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Neutrals — placeholders, will be replaced from Figma Color frame (1:9983) */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f8f8f8;
-  --color-bg-tertiary: #f3f3f3;
-  --color-fg-primary: #0a0a0a;
-  --color-fg-secondary: #525252;
-  --color-fg-tertiary: #a3a3a3;
-  --color-border: #e5e5e5;
-  --color-border-strong: #d4d4d4;
+  /* Colors — utility forms: bg-bg-primary, text-text-primary, etc.
+     Verbose but intentional: utility names mirror the Figma token names 1:1
+     so AGENTS find them by exact name. */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+
+  --color-fill-primary: var(--fill-primary);
+  --color-fill-secondary: var(--fill-secondary);
+  --color-fill-tertiary: var(--fill-tertiary);
+  --color-fill-quaternary: var(--fill-quaternary);
+  --color-fill-green: var(--fill-green);
+  --color-fill-green-hover: var(--fill-green-hover);
+  --color-fill-red: var(--fill-red);
+  --color-fill-inverse: var(--fill-inverse);
+
+  --color-control-bg: var(--control-bg);
+  --color-control-hover: var(--control-hover);
+  --color-control-selected: var(--control-selected);
+  --color-control-primary: var(--control-primary);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-quaternary: var(--text-quaternary);
+  --color-text-green: var(--text-green);
+  --color-text-red: var(--text-red);
+  --color-text-inverse: var(--text-inverse);
+
+  /* Badge chromatic palette */
+  --color-badge-green-muted: var(--badge-green-muted);
+  --color-badge-green-border: var(--badge-green-border);
+  --color-badge-green-emphasis: var(--badge-green-emphasis);
+  --color-badge-blue-muted: var(--badge-blue-muted);
+  --color-badge-blue-border: var(--badge-blue-border);
+  --color-badge-blue-emphasis: var(--badge-blue-emphasis);
+  --color-badge-red-muted: var(--badge-red-muted);
+  --color-badge-red-border: var(--badge-red-border);
+  --color-badge-red-emphasis: var(--badge-red-emphasis);
+  --color-badge-orange-muted: var(--badge-orange-muted);
+  --color-badge-orange-border: var(--badge-orange-border);
+  --color-badge-orange-emphasis: var(--badge-orange-emphasis);
+  --color-badge-yellow-muted: var(--badge-yellow-muted);
+  --color-badge-yellow-border: var(--badge-yellow-border);
+  --color-badge-yellow-emphasis: var(--badge-yellow-emphasis);
+  --color-badge-purple-muted: var(--badge-purple-muted);
+  --color-badge-purple-border: var(--badge-purple-border);
+  --color-badge-purple-emphasis: var(--badge-purple-emphasis);
+  --color-badge-gray-muted: var(--badge-gray-muted);
+  --color-badge-gray-border: var(--badge-gray-border);
+  --color-badge-gray-emphasis: var(--badge-gray-emphasis);
+
+  /* Workflow palette */
+  --color-workflow-purple: var(--workflow-purple);
+  --color-workflow-green: var(--workflow-green);
+  --color-workflow-blue: var(--workflow-blue);
+  --color-workflow-orange: var(--workflow-orange);
+
+  /* Accent */
+  --color-accent-beta: var(--accent-beta);
+
+  /* Border (Tailwind border-* utilities default to this) */
+  --color-border: var(--fill-quaternary);
+  --color-border-strong: var(--fill-tertiary);
+
+  /* Composite shadow recipes — the "Flat" surface is the central control idiom */
+  --shadow-flat:
+    0 1px 2px 0 var(--shadow-2),
+    0 2px 4px 0 var(--shadow-1),
+    0 0 0 1px var(--shadow-3);
+  --shadow-low: 0 2px 4px 0 var(--shadow-1);
+  --shadow-high:
+    0 16px 32px 0 var(--shadow-2),
+    0 0 5px 0 var(--shadow-1);
+  --shadow-focus:
+    0 0 0 1px var(--shadow-3),
+    0 0 0 4px color-mix(in srgb, var(--fill-primary) 12%, transparent);
 }
+
+@theme {
+  /* Spacing — 1px units. Makes every Tailwind spacing/sizing utility match
+     Figma px values directly (h-24 = 24px, gap-6 = 6px, p-12 = 12px).
+     Trade-off: utility numbers look unusual to Tailwind muscle memory, but
+     code is exactly the Figma spec — no mental conversion. */
+  --spacing: 1px;
+
+  /* Radii — keep Figma names. Tailwind's defaults (rounded-md, etc.) still work. */
+  --radius-4: 4px;
+  --radius-6: 6px;
+  --radius-8: 8px;
+  --radius-full: 10000px;
+
+  /* Typography scale — overrides Tailwind defaults for text-base; adds named tokens. */
+  --text-micro: 10px;
+  --text-micro--line-height: 14px;
+  --text-mini: 12px;
+  --text-mini--line-height: 14px;
+  --text-small: 13px;
+  --text-small--line-height: 16px;
+  --text-base: 14px;
+  --text-base--line-height: 1.4;
+  --text-paragraph: 13px;
+  --text-paragraph--line-height: 1.7;
+  --text-title-mini: 18px;
+  --text-title-mini--line-height: 24px;
+  --text-title-small: 24px;
+  --text-title-small--line-height: 32px;
+  --text-title-small--letter-spacing: -0.25px;
+  --text-title-regular: 28px;
+  --text-title-regular--line-height: 32px;
+  --text-title-regular--letter-spacing: -0.25px;
+  --text-display: 80px;
+  --text-display--line-height: 80px;
+  --text-display--letter-spacing: -5.25px;
+}
+
+/* ------------------------------------------------------------------
+ * Base styles
+ * ------------------------------------------------------------------ */
 
 html,
 body {
   height: 100%;
-  font-family: var(--font-sans);
-  background: var(--color-bg-primary);
-  color: var(--color-fg-primary);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), "Inter Variable", "Inter", -apple-system,
+    BlinkMacSystemFont, sans-serif;
+  /* Profound's load-bearing font features: stylistic alternates, tail-l, lining + tabular numerals */
+  font-feature-settings: "ss03" 1, "cv08" 1, "lnum" 1, "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Tailwind 4 doesn't ship a default border color in CSS-first mode */
 *,
 ::before,
 ::after {
