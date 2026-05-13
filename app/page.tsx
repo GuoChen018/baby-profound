@@ -1,5 +1,15 @@
-import { Button } from "@/components/ui";
-import { ArrowRight, Plus, Search, Settings, Trash2 } from "lucide-react";
+import { Badge, Button, Tag } from "@/components/ui";
+import {
+  ArrowRight,
+  CheckCircle,
+  Hash,
+  Plus,
+  Search,
+  Settings,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 
 /**
  * Design-system preview / smoke test.
@@ -89,6 +99,44 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-12">
             <Swatch className="bg-fill-green" label="fill-green · text-green" textInverse />
             <Swatch className="bg-fill-red" label="fill-red · text-red" textInverse />
+          </div>
+        </Section>
+
+        {/* Tags */}
+        <Section title="Tags" caption="Monochromatic pills · 3 sizes">
+          <div className="space-y-12">
+            <div className="flex flex-wrap items-center gap-8">
+              <Tag size="sm">Small</Tag>
+              <Tag size="md">Default</Tag>
+              <Tag size="lg">Large</Tag>
+            </div>
+            <div className="flex flex-wrap items-center gap-8">
+              <Tag iconLeft={<Hash />}>Citation</Tag>
+              <Tag iconRight={<X />}>Dismissable</Tag>
+              <Tag asSpan>Static</Tag>
+            </div>
+          </div>
+        </Section>
+
+        {/* Badges */}
+        <Section title="Badges" caption="Chromatic · 8 colors x 2 sizes">
+          <div className="space-y-12">
+            <div className="flex flex-wrap items-center gap-8">
+              <Badge color="grey">Grey</Badge>
+              <Badge color="green">Live</Badge>
+              <Badge color="red">Error</Badge>
+              <Badge color="blue">Beta</Badge>
+              <Badge color="orange">Warning</Badge>
+              <Badge color="amber">Pending</Badge>
+              <Badge color="cyan">Info</Badge>
+              <Badge color="purple">New</Badge>
+            </div>
+            <div className="flex flex-wrap items-center gap-8">
+              <Badge color="green" icon={<CheckCircle />}>Verified</Badge>
+              <Badge color="blue" icon={<Sparkles />}>AI</Badge>
+              <Badge size="sm" color="amber">Pending</Badge>
+              <Badge size="sm" color="purple">Pro</Badge>
+            </div>
           </div>
         </Section>
 

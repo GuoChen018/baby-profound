@@ -48,30 +48,43 @@
   --shadow-1: rgba(0, 0, 0, 0.02);
   --shadow-2: rgba(0, 0, 0, 0.05);
   --shadow-3: #ebebeb;
+  --shadow-focus-ring: #f2f2f2;
 
-  /* Badge chromatic palette (7 colors × 3 ranks)
-     Confirmed: green, blue, red, orange, yellow, purple. Pink/gray approximated. */
-  --badge-green-muted: #e8f7ee;
-  --badge-green-border: #cdedd8;
-  --badge-green-emphasis: #0d6c3a;
+  /* Badge chromatic palette — 8 colors x 3 ranks (24 tokens)
+     Authoritative source: _reference/figma/01-components/badges/design-context.md
+     Grey reuses semantic tokens; the other 7 introduce a chromatic palette
+     that doesn't appear anywhere else in the foundation Color frame. */
+  --badge-grey-muted: var(--bg-tertiary);
+  --badge-grey-border: var(--fill-quaternary);
+  --badge-grey-emphasis: var(--text-primary);
+
+  --badge-green-muted: #e6fbec;
+  --badge-green-border: #c7f4d7;
+  --badge-green-emphasis: #0d542b;
+
+  --badge-red-muted: #fef2f2;
+  --badge-red-border: #ffe6e6;
+  --badge-red-emphasis: #9f0712;
+
   --badge-blue-muted: #eff6ff;
   --badge-blue-border: #e0edff;
   --badge-blue-emphasis: #1b3ea7;
-  --badge-red-muted: #fff1f0;
-  --badge-red-border: #ffe0de;
-  --badge-red-emphasis: #bf2c2a;
-  --badge-orange-muted: #fff8eb;
-  --badge-orange-border: #ffefd0;
-  --badge-orange-emphasis: #a25700;
-  --badge-yellow-muted: #fffaeb;
-  --badge-yellow-border: #fef0c7;
-  --badge-yellow-emphasis: #92722f;
-  --badge-purple-muted: #f6f3ff;
-  --badge-purple-border: #e9e1ff;
-  --badge-purple-emphasis: #5b32cc;
-  --badge-gray-muted: #f5f5f5;
-  --badge-gray-border: #e8e8e8;
-  --badge-gray-emphasis: #4a4a4a;
+
+  --badge-orange-muted: #fff7ed;
+  --badge-orange-border: #f7e4cb;
+  --badge-orange-emphasis: #9f2d00;
+
+  --badge-amber-muted: #fffbeb;
+  --badge-amber-border: #f5ecc4;
+  --badge-amber-emphasis: #973c00;
+
+  --badge-cyan-muted: #ecfeff;
+  --badge-cyan-border: #cefafe;
+  --badge-cyan-emphasis: #005f78;
+
+  --badge-purple-muted: #faf5ff;
+  --badge-purple-border: #f1e4fa;
+  --badge-purple-emphasis: #59168b;
 
   /* Workflow palette (Workflow Side Nav) */
   --workflow-purple: #9362f4;
@@ -107,6 +120,7 @@
   --shadow-1: rgba(0, 0, 0, 0);
   --shadow-2: rgba(0, 0, 0, 0);
   --shadow-3: #323232;
+  --shadow-focus-ring: #2a2a2a;
 }
 
 /* System-preference fallback for users without an explicit .dark class. */
@@ -127,6 +141,7 @@
     --shadow-1: rgba(0, 0, 0, 0);
     --shadow-2: rgba(0, 0, 0, 0);
     --shadow-3: #323232;
+    --shadow-focus-ring: #2a2a2a;
   }
 }
 
@@ -169,28 +184,31 @@
   --color-text-red: var(--text-red);
   --color-text-inverse: var(--text-inverse);
 
-  /* Badge chromatic palette */
+  /* Badge chromatic palette — 8 colors */
+  --color-badge-grey-muted: var(--badge-grey-muted);
+  --color-badge-grey-border: var(--badge-grey-border);
+  --color-badge-grey-emphasis: var(--badge-grey-emphasis);
   --color-badge-green-muted: var(--badge-green-muted);
   --color-badge-green-border: var(--badge-green-border);
   --color-badge-green-emphasis: var(--badge-green-emphasis);
-  --color-badge-blue-muted: var(--badge-blue-muted);
-  --color-badge-blue-border: var(--badge-blue-border);
-  --color-badge-blue-emphasis: var(--badge-blue-emphasis);
   --color-badge-red-muted: var(--badge-red-muted);
   --color-badge-red-border: var(--badge-red-border);
   --color-badge-red-emphasis: var(--badge-red-emphasis);
+  --color-badge-blue-muted: var(--badge-blue-muted);
+  --color-badge-blue-border: var(--badge-blue-border);
+  --color-badge-blue-emphasis: var(--badge-blue-emphasis);
   --color-badge-orange-muted: var(--badge-orange-muted);
   --color-badge-orange-border: var(--badge-orange-border);
   --color-badge-orange-emphasis: var(--badge-orange-emphasis);
-  --color-badge-yellow-muted: var(--badge-yellow-muted);
-  --color-badge-yellow-border: var(--badge-yellow-border);
-  --color-badge-yellow-emphasis: var(--badge-yellow-emphasis);
+  --color-badge-amber-muted: var(--badge-amber-muted);
+  --color-badge-amber-border: var(--badge-amber-border);
+  --color-badge-amber-emphasis: var(--badge-amber-emphasis);
+  --color-badge-cyan-muted: var(--badge-cyan-muted);
+  --color-badge-cyan-border: var(--badge-cyan-border);
+  --color-badge-cyan-emphasis: var(--badge-cyan-emphasis);
   --color-badge-purple-muted: var(--badge-purple-muted);
   --color-badge-purple-border: var(--badge-purple-border);
   --color-badge-purple-emphasis: var(--badge-purple-emphasis);
-  --color-badge-gray-muted: var(--badge-gray-muted);
-  --color-badge-gray-border: var(--badge-gray-border);
-  --color-badge-gray-emphasis: var(--badge-gray-emphasis);
 
   /* Workflow palette */
   --color-workflow-purple: var(--workflow-purple);
@@ -214,9 +232,11 @@
   --shadow-high:
     0 16px 32px 0 var(--shadow-2),
     0 0 5px 0 var(--shadow-1);
+  /* Focus ring: 1px hairline + 3px outer ring (light grey `#f2f2f2` in light).
+     Per input/design-context-1.md the outer ring is `0 0 0 3 #f2f2f2`. */
   --shadow-focus:
     0 0 0 1px var(--shadow-3),
-    0 0 0 4px color-mix(in srgb, var(--fill-primary) 12%, transparent);
+    0 0 0 4px var(--shadow-focus-ring);
 }
 
 @theme {
