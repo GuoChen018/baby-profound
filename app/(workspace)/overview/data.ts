@@ -128,38 +128,52 @@ export const kpis: KpiTab[] = [
  * job is to answer **"how healthy is my AI visibility this week?"** in
  * one scan.
  *
- * The copy is structured for that scan:
+ * Voice — analyst-note style modeled on Profound's actual weekly
+ * summaries. Reference samples (American Express, Ramp) shared by
+ * the user demonstrate the format:
  *
- *   - **Headline = positional + directional health.** Open with the
- *     marketer's category standing (their fundamental position) and
- *     the dominant trend signal across all KPIs. This is the
- *     "everything is roughly okay / not okay" line — no hedge words
- *     ("still", "despite", "however") because those read as
- *     defensive.
- *   - **Body = where to look first.** One concrete weakness, anchored
- *     to a real KPI delta and a real prompt with its monthly volume.
- *     Volume tells the marketer how much *traffic* is at stake, which
- *     is the right unit for prioritization.
+ *   - **Headline** is one long Title-Case sentence with a positive
+ *     anchor + a tempering "Amid/Despite" clause + a third nuance.
+ *     ("Brand Maintains/Holds/Sees [Adjective] AI Visibility Amid
+ *     [Tempering Detail] and [Additional Nuance]")
+ *   - **Body** is two compressed sentences that progress
+ *     overall-position → topic-level movement:
+ *       1. *Position + period direction* — names the rank and
+ *          category, gives the score delta in absolute terms.
+ *       2. *Topic-level mix* — names specific prompts in single
+ *          quotes with parenthesized deltas, mixing gains and
+ *          declines so the reader sees the shape.
+ *     The earlier 3-sentence version added a citation-share +
+ *     top-cited-pages sentence; the user pushed back as too long
+ *     for a dashboard hero, so we collapsed to 2 sentences. The
+ *     citation-share synthesis can move into a future "more details"
+ *     expandable if needed.
  *
- * Numbers reconcile with `kpis` above:
- *   - Visibility Rank #2 ← `kpis[1].value`
- *   - AI Citations +412 ≈ +7% ← `kpis[2].value` / `kpis[2].delta`
- *   - Visibility Score 78.5% (-1.3%) ← `kpis[0].value` / `kpis[0].delta`
+ * Hero ↔ opportunities cohesion: the topics named in sentence 2
+ * ('top business credit cards', 'best corporate card for startups',
+ * 'high-limit cards') match the targets of the first three cards in
+ * `overviewOpportunities`. Marketer reads hero, looks down, sees the
+ * rail addressing exactly the topics that just got named.
  *
- * The body's prompt — "top business credit cards" at 164k monthly
- * prompts, #2 → #3 — matches the first row in `categoryPrompts` and
- * the first opportunity in `overviewOpportunities`, so the hero,
- * table, and rail all tell one coherent story.
+ * Numbers reconcile with `kpis` and `rankLeaderboard` below:
+ *   - 78.5% visibility score ← `kpis[0].value`
+ *   - -1.3% delta            ← `kpis[0].delta`
+ *   - #2 rank                ← `kpis[1].value` (Ramp at #1 in
+ *                              `rankLeaderboard`)
+ *
+ * Prompt-level deltas (+4.4%, -6.9%, -3.1%) are illustrative — the
+ * real product would compute these from per-prompt time series.
  *
  * Loading state: shimmering skeleton rectangles for ~1.2s then
- * crossfade to the real content. No timestamp in the eyebrow — the
- * page itself already implies "now".
+ * blur-fade-and-crossfade to the real content. The skeleton bar
+ * counts in `HeroSkeleton` (page.tsx) are tuned to roughly match the
+ * wrap of the real headline (~3 lines) and body (~4 lines).
  */
 export const themeOfWeek = {
   eyebrow: "What's new",
   headline:
-    "Brex ranks #2 in corporate card visibility — AI citations up 7% week-over-week",
-  body: "Visibility Score sits at 78.5% (-1.3%). The biggest gap this week is on 'top business credit cards' (164k monthly prompts), where Brex slipped from #2 to #3.",
+    "Brex Holds #2 in Corporate Card AI Visibility Amid Slight Decline and Mixed Topic Performance",
+  body: "Brex held its #2 position in corporate card AI visibility (78.5%, down 1.3% this period). Declines on 'top business credit cards' (-6.9%) and 'best corporate card for startups' (-3.1%) offset gains on 'high-limit cards' (+4.4%).",
 } as const;
 
 // ────────────────────────────────────────────────────────────────────
@@ -167,80 +181,167 @@ export const themeOfWeek = {
 // ────────────────────────────────────────────────────────────────────
 
 /**
- * Five opportunities, all themed to the weekly narrative above. The
- * rail shows the first two.
+ * Five opportunities, themed to the weekly narrative above. The rail
+ * shows the first three; the first two intentionally pick up the
+ * topics named in `themeOfWeek.body` ('top business credit cards'
+ * and 'high-limit cards') so the page tells one coherent story, and
+ * the third opens the offensive angle ('best corporate card for
+ * startups' — where Brex isn't cited yet).
  *
- * Structure mirrors `PrototypeOpportunity`:
- *   - title     → action-first opportunity framing
- *   - context   → topic · volume · competitive signal, pre-joined
- *   - currentPerformance → the specific gap signal
- *   - href      → canonical `/opportunities` listing. These IDs are
- *     themed to the weekly narrative and don't have full detail
- *     records in `lib/data/opportunities.ts`, so we route to the
- *     listing rather than producing 404s under static export. A
- *     follow-up could seed real `Opportunity` records and link to
- *     `/opportunities/<id>` directly.
+ * Schema (see `OpportunityTile.tsx`):
+ *
+ *   - **action**   — verb-first sentence in the form
+ *       `<verb> <object> to <purpose>`
+ *     The "to <purpose>" clause states the goal of the action so a
+ *     marketer can read just the title and know WHY they'd do this.
+ *     Examples:
+ *       - "Create content brief to defend ranking on '<topic>'"
+ *       - "Strengthen page to recover share on '<topic>'"
+ *       - "Create new content to win '<topic>'"
+ *       - "Reach out to <person> to grow <outlet> citations"
+ *       - "Set up agent to monitor <channel>"
+ *     This replaces the earlier "<verb> <object> for <target>" wording
+ *     ("Create content brief for 'top business credit cards'"), which
+ *     stated the target but not the *intent*. The new pattern reads
+ *     more like a to-do list with purpose.
+ *   - **reason**   — three slots joined by middots in the renderer:
+ *       - `anchor`      magnitude ("164k/mo", "0.1% share")
+ *       - `scope`       optional channel/time when not already
+ *                       baked into the action (mostly empty)
+ *       - `comparison`  trend / competitor / gap signal
+ *
+ * Per-card intent (purpose clause → what's the goal):
+ *   1. **Defend ranking** — was higher, slipped. Goal: stop the bleed.
+ *   2. **Recover share** — existing page underperforming on a topic
+ *      a competitor is currently winning. Goal: take share back.
+ *   3. **Win an untapped prompt** — zero share but the prompt is
+ *      addressable (competitors ARE cited). Goal: enter the field.
+ *   4. **Grow citations through a journalist** — relationship gap.
+ *      Goal: convert a productive journalist into a Brex citer.
+ *   5. **Monitor a blind spot** — competitor activity we don't see.
+ *      Goal: get visibility before we make decisions.
+ *
+ * Hrefs all point at `/opportunities` (the listing) — these IDs
+ * don't yet have full `Opportunity` records in `lib/data/opportunities.ts`,
+ * so we route to the listing rather than 404 under static export.
+ */
+/**
+ * Order matters — the rail slices the first TWO, so positions 1-2
+ * are the visible "headline opportunities" and 3-5 spill into the
+ * "View all" page.
+ *
+ * Visible rail (1-2): one defensive content fire + one agent
+ * setup. The defensive fire (164k-volume rank drop) is this week's
+ * single biggest gap; pairing it with the agent setup says "and
+ * here's how you stop having to fight this fire manually next
+ * time." That two-card story compresses both halves of the
+ * Profound pitch — react to the present + automate the future —
+ * into the rail without burying either in scroll.
+ *
+ * Spillover (3-5): the optimize-the-high-limit-page card stays in
+ * the catalog so it shows up on the Opportunities listing, but it
+ * loses its rail slot because the agent card is the more
+ * strategic neighbor for the defense card. Offense + outreach
+ * round out the Medium-impact tail.
+ *
+ * Agent card framing — modeled on Profound's "competitor catches a
+ * price change, drafts an email, posts to Slack, builds a landing
+ * page" pitch. The opportunity isn't "monitor a Subreddit" (a
+ * passive task that an existing Reddit Sentiment Tracker already
+ * covers); it's "set up an agent that PRODUCES artifacts when Ramp
+ * publishes on contested topics." The verb→outcome on the card is
+ * "monitor Ramp launches and draft Brex responses" — both halves
+ * are essential because the "draft responses" half is what makes
+ * the agent feel like a teammate rather than an alarm.
  */
 export const overviewOpportunities: PrototypeOpportunity[] = [
   {
     id: "op-content-brief-top-business-credit-cards",
-    type: "Create Content Brief",
-    title:
-      "Create a content brief for a high-volume topic where Brex lost ranking this week",
-    context:
-      "top business credit cards · 164k monthly prompts · dropped from #2 to #3",
-    currentPerformance: {
-      label: "Citation share",
-      value: "8.8% · down from 11.2%",
+    // High impact: 164k/month is the largest volume on the list AND
+    // the rank just dropped #2→#3, so this is the "biggest fire"
+    // tile. "Create new content" replaces the earlier "Create
+    // content brief" — the artifact distinction wasn't carrying
+    // useful info. Reason uses labelled fields ("rank #X → #Y",
+    // "citation share X% → Y%") rather than bare-arrow shorthand,
+    // so each value is self-describing at a glance.
+    impact: "High",
+    action:
+      "Create new content to defend ranking on \u2018top business credit cards\u2019",
+    reason: {
+      anchor: "164k/month",
+      comparison: "rank #2 \u2192 #3 \u00b7 citation share 11.2% \u2192 8.8%",
     },
     href: "/opportunities",
   },
   {
+    id: "op-agent-competitor-response",
+    // High impact: one-time setup that compounds across topics. The
+    // alternative is for the marketer to keep playing whack-a-mole
+    // every time Ramp publishes — an agent collapses that into a
+    // single automation. Promoted from position 3 → 2 so it shares
+    // the visible rail with the defense card above; the pairing
+    // reads as "fix this week's fire AND prevent next week's." The
+    // verb→outcome is two-clause — "monitor Ramp launches AND draft
+    // Brex responses" — to signal the agent doesn't just watch, it
+    // produces artifacts. Deep-links to the full detail page (Slack
+    // ping → brief draft → battle-card update) because this is the
+    // one rail card with a real workflow story.
+    impact: "High",
+    action:
+      "Create new agent to monitor Ramp launches and draft Brex responses",
+    reason: {
+      anchor: "4 Ramp pages added in May",
+      comparison: "No automated response in place",
+    },
+    href: "/opportunities/op-agent-competitor-response",
+  },
+  {
     id: "op-optimize-high-limit-business-credit-card",
-    type: "Optimize Page",
-    title:
-      "Strengthen an existing page before competitors pull further ahead on a high-intent topic",
-    context: "high limit business credit cards · Ramp gained 6% this week",
-    currentPerformance: {
-      label: "Citation share",
-      value: "0.1% · brex.com/high-limit-business-credit-card",
+    // High impact still — Ramp gained +6% this week so the gap is
+    // actively widening — but demoted to position 3 (off-rail). The
+    // marketer can scroll the Opportunities listing for this one;
+    // it doesn't earn a rail slot because the agent card is the
+    // more strategic neighbor for the headline defense card.
+    impact: "High",
+    action:
+      "Optimize page to recover share on \u2018high-limit business credit cards\u2019",
+    reason: {
+      anchor: "12k/month",
+      // No `scope` — topic is named in the action. Showing the full
+      // URL here added ~50 chars of noise on the rail tile.
+      comparison: "citation share 0.1% \u00b7 Ramp gained 6% this week",
     },
     href: "/opportunities",
   },
   {
     id: "op-content-best-corporate-card-startups",
-    type: "Content Creation",
-    title:
-      "Create net-new content for an untapped prompt where Ramp and Divvy are already appearing",
-    context: "best corporate card for startups · 52k monthly prompts · Brex not cited",
-    currentPerformance: {
-      label: "Citation share",
-      value: "Not mentioned",
+    // Medium impact: 52k/mo is solid volume but this is an
+    // exploration play (Brex isn't cited at all yet), not a
+    // defensive fire. Worth doing, but the rank-drop cards above
+    // are more time-sensitive.
+    impact: "Medium",
+    action:
+      "Create new content to win \u2018best corporate card for startups\u2019",
+    reason: {
+      anchor: "52k/month",
+      comparison: "Brex not cited \u00b7 Ramp citation share 14%",
     },
     href: "/opportunities",
   },
   {
     id: "op-outreach-jerod-morales",
-    type: "Outreach",
-    title:
-      "Connect with a journalist whose coverage consistently drives AI citations in your category",
-    context: "Jerod Morales · Forbes · cited Ramp 12x this month · Brex 0x",
-    currentPerformance: {
-      label: "Mentions",
-      value: "Not mentioned",
-    },
-    href: "/opportunities",
-  },
-  {
-    id: "op-agent-reddit-startups",
-    type: "Set Up Agent",
-    title:
-      "Monitor Reddit conversations where competitors are being recommended over Brex",
-    context:
-      "Profound detected r/startups citing Ramp on corporate card threads · Brex not present",
-    currentPerformance: {
-      label: "Current coverage",
-      value: "Not monitored",
+    // Medium impact: relationship-building has a slow payoff curve
+    // and the citation differential (12 vs 0) is meaningful but
+    // doesn't carry the immediacy of a rank-drop on a 164k-volume
+    // topic.
+    impact: "Medium",
+    action: "Reach out to Jerod Morales to grow Forbes citations",
+    reason: {
+      // Counts (not "share") are the right unit for relationship
+      // gaps. The May timeframe in `anchor` contextualizes the
+      // count so "12" doesn't read as ambiguous.
+      anchor: "12 Ramp citations in May",
+      comparison: "0 Brex citations",
     },
     href: "/opportunities",
   },

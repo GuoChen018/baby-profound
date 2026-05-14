@@ -84,6 +84,47 @@ function enrich(o: Opportunity): Opportunity {
 
 const extras: Opportunity[] = [
   {
+    // ────────────────────────────────────────────────────────────
+    // Agent opportunity — surfaced on the Overview rail at position
+    // 3 (see `app/(workspace)/overview/data.ts`).
+    //
+    // Detail-page narrative spells out the multi-output workflow
+    // Profound's customer-pitch describes: a single agent monitors
+    // Ramp's content surface and produces three concrete artifacts
+    // for the marketer to review (Slack ping → brief draft →
+    // battle-card update). The structure mirrors Profound's
+    // existing template-gallery entries (each template has a clear
+    // trigger + output set), so this card reads as "build the
+    // template that's missing."
+    // ────────────────────────────────────────────────────────────
+    id: "op-agent-competitor-response",
+    type: "Agent",
+    target: { kind: "topic", label: "Ramp content launches" },
+    headline:
+      "Set up a Ramp Launch Watch agent that alerts, drafts a brief, and updates the Brex battle card overnight.",
+    description:
+      "Ramp published 4 new pages on contested topics in May (top business credit cards, high-limit, startup card, EIN-only). Each one shifts citation share within days. Today the response is manual — a marketer notices the page in a weekly review, by which point Ramp has already started ranking. An agent collapses that loop: it detects the new page within hours, drafts the Brex response brief, files a battle-card update, and pings the team on Slack — all before the marketer's standup.",
+    currentPerformance: { status: "Not Mentioned" },
+    actionCard: {
+      type: "Agent",
+      // Tool label is "Agents" because that's where the action
+      // routes in production. The description names the three
+      // outputs explicitly so a marketer skimming the action card
+      // can decide "yes this is worth my time" in 5 seconds.
+      description:
+        "Build a Ramp Launch Watch agent that runs nightly, produces a Brex response brief for every new Ramp page, updates the competitive battle card, and posts a Slack alert with the diff.",
+    },
+    implementation: [
+      "Configure the trigger: scrape Ramp's marketing sitemap + blog feed every 6 hours; diff against the last snapshot. Flag any page published in the last 24 hours whose title or H1 contains a topic from the Brex contested-topics list (top business credit cards, high-limit, startup card, EIN-only, expense management).",
+      "Output 1 — Slack ping: post to #marketing-aeo within 10 minutes of detection. Include the page URL, the matched topic, Brex's current citation share for that topic, and a thumbnail of the Ramp hero image so the alert is scannable.",
+      "Output 2 — Response brief: kick off a Brex Content Brief draft for the matched topic. Pre-fill the brief with the Ramp page's H1/H2 structure, the prompts Ramp is likely targeting (pulled from Answer Engine Insights), and 3 angle suggestions the Brex content team can pick from.",
+      "Output 3 — Battle card update: append the new Ramp page to the Brex/Ramp battle card under the matched topic. Include the page URL, publish date, primary CTA, and one-line summary so the GTM team can quote-reply on calls without rereading the whole page.",
+      "Review queue: surface every triggered run on the Agents tab with a status (alert sent, brief drafted, battle card updated) so the marketer can audit accuracy before the workflow is fully autonomous.",
+    ],
+    rationale:
+      "Competitor content launches are the single highest-frequency cause of week-over-week citation share drops on contested topics. Today Brex responds reactively (weekly review → brief → publish, a 7-10 day loop). An agent that catches the launch within hours and produces all three artifacts — alert, brief, battle card — compresses that loop to 1-2 days and removes the 'whoever happens to notice on Monday' bottleneck. The same pattern Profound recommends for competitor price changes (a single trigger producing email drafts, Slack updates, and a comparison landing page) maps directly onto Brex's content-defense workflow, with Ramp's publishing cadence as the trigger.",
+  },
+  {
     id: "op-outreach-techcrunch-finola-quinn",
     type: "Outreach",
     target: { kind: "person", label: "Finola Quinn" },

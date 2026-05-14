@@ -25,7 +25,7 @@
      brightness units above `--bg-primary` (#0e0e10) which makes the
      bars practically invisible on OLED screens. */
   --skeleton-base: #e4e4e7;
-  --skeleton-highlight: #f4f4f5;
+  --skeleton-highlight: #ffffff;
 
   /* Fills — ink / icon / divider */
   --fill-primary: #18181a;
@@ -117,8 +117,8 @@
   --bg-secondary: #141416;
   --bg-tertiary: #1a1a1c;
 
-  --skeleton-base: #27272a;
-  --skeleton-highlight: #3a3a3d;
+  --skeleton-base: #2a2a2d;
+  --skeleton-highlight: #555558;
 
   --fill-primary: #ffffff;
   --fill-secondary: #5a5a5a;
@@ -139,6 +139,49 @@
   --shadow-2: rgba(0, 0, 0, 0);
   --shadow-3: #1f1f21;
   --shadow-focus-ring: #1a1a1c;
+
+  /* Badge palette — dark-mode overrides.
+   *
+   * Light-mode recipe is `muted` (near-white tint) bg + `emphasis`
+   * (very dark) text. That recipe ports badly to a dark surface — the
+   * near-white pill explodes off the page and grabs the eye more than
+   * the page's primary content. We invert: low-luminance hue bg,
+   * subtle hue border, light hue text. Same 3-token shape as the
+   * light recipe so `Badge.tsx` doesn't have to change.
+   *
+   * `red` and `amber` cover the High/Medium impact badges on the
+   * Overview opportunity rail (where this was first noticed). `grey`
+   * covers the future Low badge so the tier set is complete; today
+   * no rail card uses Low but the catalog should be ready for it.
+   * Other hues (blue/orange/cyan/purple) get the same treatment as
+   * they show up — only `green` (Document saved) was overridden
+   * pre-impact-badge work. */
+  --badge-red-muted: #2a0e12;
+  --badge-red-border: #4a1c22;
+  --badge-red-emphasis: #fca5a5;
+
+  --badge-amber-muted: #2a1f0a;
+  --badge-amber-border: #4a3614;
+  --badge-amber-emphasis: #fcd34d;
+
+  --badge-grey-muted: #2a2a2d;
+  --badge-grey-border: #353538;
+  --badge-grey-emphasis: #a8a8a8;
+
+  /* Green dark-mode override — user-tuned values that pair with the
+     "High Impact" pill in `OpportunityTile`. Darker base (`#032e16`)
+     reads as a deeper forest than the original `#0f2a1c` and lets the
+     bright mint text (`#7af2a8`) pop without feeling fluorescent. The
+     border is keyed off the muted value with a subtle lift so it
+     reads as a 1px lift rather than a hard line.
+
+     This overrides the default green dark-mode tokens defined under
+     `prefers-color-scheme: dark` below; the `.dark` class is the
+     authoritative override path because explicit toggle should always
+     beat system preference. */
+  --badge-green-muted: #032e16;
+  --badge-green-border: #094a26;
+  --badge-green-emphasis: #17b562;
 }
 
 /* System-preference fallback for users without an explicit .dark class. */
@@ -147,8 +190,8 @@
     --bg-primary: #0e0e10;
     --bg-secondary: #141416;
     --bg-tertiary: #1a1a1c;
-    --skeleton-base: #27272a;
-    --skeleton-highlight: #3a3a3d;
+    --skeleton-base: #2a2a2d;
+    --skeleton-highlight: #555558;
     --fill-primary: #ffffff;
     --fill-secondary: #5a5a5a;
     --fill-tertiary: #2a2a2c;
@@ -162,6 +205,25 @@
     --shadow-2: rgba(0, 0, 0, 0);
     --shadow-3: #1f1f21;
     --shadow-focus-ring: #1a1a1c;
+
+    /* Badge palette — dark-mode overrides. See the matching block in
+     * `.dark` above for the full rationale. Keep this block in sync
+     * with `.dark` — same recipe, same hues. */
+    --badge-green-muted: #032e16;
+    --badge-green-border: #094a26;
+    --badge-green-emphasis: #17b562;
+
+    --badge-red-muted: #2a0e12;
+    --badge-red-border: #4a1c22;
+    --badge-red-emphasis: #fca5a5;
+
+    --badge-amber-muted: #2a1f0a;
+    --badge-amber-border: #4a3614;
+    --badge-amber-emphasis: #fcd34d;
+
+    --badge-grey-muted: #2a2a2d;
+    --badge-grey-border: #353538;
+    --badge-grey-emphasis: #a8a8a8;
   }
 }
 
@@ -329,37 +391,95 @@ body {
 /* ------------------------------------------------------------------
  * Skeleton shimmer
  *
- * Gradient-sweep effect for skeleton placeholders (e.g. the AEO
- * Overview hero while AI-generated copy is loading). The highlight
- * pass uses `--bg-secondary` against the `--bg-tertiary` base so the
- * tones stay anchored in the same surface family — visible enough to
- * read as "loading", subtle enough not to draw the eye away from the
- * rest of the page. Auto-disables for users who prefer reduced motion.
+ * Gradient-sweep effect for skeleton placeholders (e.g. the Overview
+ * hero while AI-generated copy is loading). Two variants:
+ *
+ *   - `.skeleton-shimmer`     — for rectangular bg blocks.
+ *   - `.text-shimmer`         — clips a moving gradient onto text glyphs
+ *     (background-clip: text). Used on the "Generating this week's
+ *     summary…" eyebrow so the status line itself reads as "actively
+ *     generating".
+ *
+ * Tokens (light + dark mode) live with the rest of the surface
+ * tokens above. The dark-mode `--skeleton-highlight` is ~25
+ * brightness units brighter than the base so the sweep is visible on
+ * OLED.
+ *
+ * IMPORTANT — both shimmers use `background-repeat: repeat-x` and
+ * animate `background-position` by exactly ONE image-period (200%).
+ * Earlier we used `no-repeat` with positions outside [0%, 100%]
+ * (e.g. 200% → -200%), which made the gradient leave the element
+ * entirely at the animation's endpoints. For block shimmers that was
+ * masked by the solid `background-color` fallback. But the text
+ * variant uses `color: transparent` + `background-clip: text`, so
+ * when the gradient exited, GLYPHS became invisible — the visual
+ * effect was letters appearing one-by-one on each cycle and
+ * disappearing one-by-one at the seam. Tiling the gradient with
+ * repeat-x guarantees coverage at all positions while staying
+ * seamless because the gradient is symmetric (tertiary at 0% and
+ * 100%, peak at 50%) — adjacent tiles meet on the tertiary color.
+ *
+ * Both auto-disable for users who prefer reduced motion.
  * ------------------------------------------------------------------ */
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
   }
   100% {
-    background-position: -200% 0;
+    background-position: 0% 0;
   }
 }
 
 .skeleton-shimmer {
   background-color: var(--skeleton-base);
+  /* Transparent plateaus reveal the `background-color` fallback, which
+     guarantees the block is fully painted at every animation frame
+     (otherwise the no-repeat seam would expose a blank slot). With
+     `background-repeat: repeat-x` we don't strictly need transparent
+     stops anymore, but they keep the bright band feeling "added on
+     top of" the base instead of "replacing" it. */
   background-image: linear-gradient(
     90deg,
     transparent 0%,
-    var(--skeleton-highlight) 50%,
+    var(--skeleton-highlight) 35%,
+    var(--skeleton-highlight) 65%,
     transparent 100%
   );
   background-size: 200% 100%;
-  background-repeat: no-repeat;
+  background-repeat: repeat-x;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* Text shimmer — same sweep but background-clipped to glyphs.
+   `text-tertiary` is the base color (matches our default eyebrow
+   muted tone); `text-primary` is the moving highlight. The plateau
+   stops use `text-tertiary` (NOT `transparent`) — because
+   `color: transparent` + `background-clip: text` makes glyphs invisible
+   wherever the gradient is transparent, the plateau has to carry a
+   visible color or the glyphs would blink out between bright sweeps.
+   The 35/65 tertiary stops also ensure adjacent tiles meet on the
+   base color so the repeat-x seam is invisible. */
+.text-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--text-tertiary) 0%,
+    var(--text-tertiary) 35%,
+    var(--text-primary) 45%,
+    var(--text-primary) 55%,
+    var(--text-tertiary) 65%,
+    var(--text-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: repeat-x;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
   animation: shimmer 1.8s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton-shimmer {
+  .skeleton-shimmer,
+  .text-shimmer {
     animation: none;
   }
 }

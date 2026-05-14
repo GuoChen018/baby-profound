@@ -21,6 +21,7 @@
 import Link from "next/link";
 import {
   ArrowTopRightOnSquareIcon,
+  BoltIcon,
   ChatBubbleLeftRightIcon,
   ChevronRightIcon,
   EnvelopeIcon,
@@ -53,6 +54,12 @@ const TYPE_ICON: Record<OpportunityType, { Icon: React.ElementType; tone: string
   "Content Creation": { Icon: PencilIcon, tone: "text-text-green" },
   Reddit: { Icon: ChatBubbleLeftRightIcon, tone: "text-badge-orange-emphasis" },
   LinkedIn: { Icon: ChatBubbleLeftRightIcon, tone: "text-badge-blue-emphasis" },
+  // Bolt mirrors the Answer Engine Insights / agents visual
+  // language elsewhere in the app — "automated work happening for
+  // you." Purple emphasis distinguishes Agent from the other types
+  // (green outreach, amber optimization, etc.) without colliding
+  // with the impact-badge palette (red/amber/grey).
+  Agent: { Icon: BoltIcon, tone: "text-badge-purple-emphasis" },
 };
 
 export function OpportunityCard({

@@ -15,6 +15,7 @@
 "use client";
 
 import {
+  BoltIcon,
   ChatBubbleLeftRightIcon,
   EnvelopeIcon,
   PencilIcon,
@@ -43,6 +44,9 @@ const FILTER_ICON: Record<
     Icon: ChatBubbleLeftRightIcon,
     tone: "text-badge-blue-emphasis",
   },
+  // Bolt + purple matches the rest of the Agent surface (list card,
+  // detail header, action card glyph).
+  Agent: { Icon: BoltIcon, tone: "text-badge-purple-emphasis" },
 };
 
 export interface OpportunityFiltersProps {

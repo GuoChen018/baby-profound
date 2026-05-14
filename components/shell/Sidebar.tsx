@@ -22,8 +22,7 @@ import {
 } from "@/components/ui/icons";
 import { Favicon } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { navSections, searchItem } from "./nav";
-import { usePalette } from "./PrototypePaletteProvider";
+import { navSections } from "./nav";
 
 export interface SidebarProps {
   workspaceName?: string;
@@ -38,8 +37,6 @@ export function Sidebar({
   workspaceDomain = "brex.com",
 }: SidebarProps) {
   const pathname = usePathname();
-  const SearchIcon = searchItem.icon;
-  const palette = usePalette();
 
   return (
     <aside
@@ -82,28 +79,11 @@ export function Sidebar({
           />
         </button>
 
-        {/* Search row — opens the prototype palette. The product's own search
-            isn't wired up in this sandbox yet, so we repurpose the affordance
-            for the cmd+K palette. */}
-        <button
-          type="button"
-          onClick={() => palette.setOpen(true)}
-          className={cn(
-            "w-full inline-flex items-center gap-8 px-10",
-            "h-32 rounded-6",
-            "cursor-pointer",
-            "bg-control-bg shadow-flat",
-            "text-text-tertiary",
-            "hover:text-text-secondary",
-            "focus-visible:outline-none focus-visible:shadow-focus",
-          )}
-        >
-          <SearchIcon aria-hidden className="size-16 shrink-0" />
-          <span className="flex-1 text-left text-small">{searchItem.placeholder}</span>
-          <kbd className="text-micro font-medium text-text-tertiary bg-bg-tertiary rounded-4 px-4 py-2">
-            {searchItem.hint}
-          </kbd>
-        </button>
+        {/* Search row removed per user feedback — the cmd+K palette is
+            still globally bound via `<PrototypePaletteProvider>`, so
+            power users keep the affordance; the visual chrome that
+            implied "click here to search" is gone because the product
+            search isn't wired up in this sandbox yet. */}
 
         {/* Sections.
          *
@@ -143,9 +123,12 @@ export function Sidebar({
                           "text-small font-medium",
                           "transition-colors",
                           "focus-visible:outline-none focus-visible:shadow-focus",
+                          // Hover changes the surface (bg-bg-tertiary) but
+                          // NOT the text color — the brightening text on
+                          // hover read as "you've already selected this".
                           active
                             ? "bg-control-selected text-text-primary"
-                            : "text-text-secondary hover:bg-bg-tertiary hover:text-text-primary",
+                            : "text-text-secondary hover:bg-bg-tertiary",
                         )}
                       >
                         <Icon

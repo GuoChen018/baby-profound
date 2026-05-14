@@ -33,7 +33,11 @@ export function AgentReviewCard({
   className,
 }: AgentReviewCardProps) {
   const { agentId, headline, timeAgo } = review;
-  const target = href ?? `/agents/${agentId}`;
+  // Resolution order: call-site `href` prop (rare override) →
+  // `review.href` (per-artifact target, e.g. `/content/<id>` for a
+  // Reddit reply draft) → `/agents/<agentId>` (the default agent
+  // detail surface).
+  const target = href ?? review.href ?? `/agents/${agentId}`;
   const brand = agentBrand(agentId);
   const name = agentName(agentId);
 
@@ -51,10 +55,11 @@ export function AgentReviewCard({
     >
       <div className="flex items-start gap-12">
         <div className="flex-1 min-w-0">
-          {/* Headline = Body/Regular (14/20) so 2-line descriptions
-              breathe. Body/SmallMedium (13/16) felt cramped at the rail
-              width. */}
-          <p className="text-paragraph text-text-primary line-clamp-2">
+          {/* Headline = Body/Medium (14/20, weight 500) so it sits in
+              the same typographic register as the OpportunityTile title
+              below. Body/SmallMedium (13/16) felt cramped at the rail
+              width; regular weight didn't read as a card title. */}
+          <p className="text-paragraph font-medium text-text-primary line-clamp-2">
             {headline}
           </p>
           <div className="mt-8 flex items-center gap-8 text-mini text-text-secondary min-w-0">

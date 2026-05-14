@@ -82,7 +82,13 @@ export type OpportunityType =
   | "Content Optimization"
   | "Content Creation"
   | "Reddit"
-  | "LinkedIn";
+  | "LinkedIn"
+  // Agent opportunities surface "create this automation" calls to
+  // action — e.g. "set up a competitor-launch monitor that drafts a
+  // response brief, posts a Slack alert, and updates the battle
+  // card". The detail page (`op-agent-competitor-response`) walks
+  // through what the agent would output.
+  | "Agent";
 
 export type OpportunityTarget =
   | { kind: "person"; label: string; avatar?: string }

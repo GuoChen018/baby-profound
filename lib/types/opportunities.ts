@@ -19,4 +19,9 @@ export const OPPORTUNITY_FILTERS: OpportunityFilter[] = [
   "Content Creation",
   "Reddit",
   "LinkedIn",
+  // "Agent" sits at the end of the filter row because it's the
+  // newest opportunity surface and there's currently only one entry
+  // in the catalog. If/when this grows, consider reordering by
+  // typical user priority rather than insertion order.
+  "Agent",
 ];

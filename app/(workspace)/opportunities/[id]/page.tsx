@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowTopRightOnSquareIcon,
+  BoltIcon,
   ChatBubbleLeftRightIcon,
   ChevronLeftIcon,
   EnvelopeIcon,
@@ -55,6 +56,9 @@ const TYPE_ICON: Record<
     Icon: ChatBubbleLeftRightIcon,
     tone: "text-badge-blue-emphasis",
   },
+  // See `OpportunityCard.TYPE_ICON` — keeping the bolt/purple
+  // pairing consistent across list card and detail page header.
+  Agent: { Icon: BoltIcon, tone: "text-badge-purple-emphasis" },
 };
 
 interface DetailPageProps {

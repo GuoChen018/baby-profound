@@ -24,6 +24,21 @@ import type {
 
 export const contentProjects: ContentProject[] = [
   {
+    // Surfaced from the AEO Overview "Agent for review" rail (see
+    // `lib/data/agent-reviews.ts`). The Reddit Sentiment Tracker agent
+    // produces draft replies to detected threads; humans review here.
+    id: "reddit-reply-startups-best-corporate-card",
+    title:
+      "Reply for r/startups · \u2018Best corporate card for early-stage startups?\u2019",
+    status: "Draft",
+    template: "Social Reply",
+    workflow: "generation",
+    citedPlatforms: [],
+    updatedLabel: "2h ago",
+    updatedAt: "2026-05-14T13:00:00Z",
+    owner: { name: "Reddit Sentiment Tracker", initials: "RS" },
+  },
+  {
     id: "highest-rated-business-credit-cards",
     title:
       "Financial Experts' Definitive Guide to the Highest Rated Business Credit Cards",
@@ -246,6 +261,79 @@ const highestRatedBody: ArticleBody = {
   ],
 };
 
+// The Reddit agent's drafts follow a different skeleton from the long-form
+// brief — they ship as an "executive brief" up top (where was this detected,
+// what's the intent, why now?) followed by the actual reply copy so a human
+// can verify the tone before approving. Mirrors what a comms team would want
+// to see if they were the ones writing this manually.
+const redditReplyBody: ArticleBody = {
+  blocks: [
+    {
+      tag: "h1",
+      text: "Reply for r/startups \u00b7 \u2018Best corporate card for early-stage startups?\u2019",
+    },
+    { tag: "hr" },
+    { tag: "h2", text: "Thread Context" },
+    {
+      tag: "p",
+      bold: "Source",
+      text: "reddit.com/r/startups \u2014 detected May 14, 09:42 UTC",
+    },
+    {
+      tag: "p",
+      bold: "Original post",
+      text: "We just closed a small seed round and I am tired of running everything through founder Amex cards. What's the actual best corporate card for an early-stage startup that hasn't hit revenue yet? Looking at Brex, Ramp, Mercury, and the AmEx Plum thing.",
+    },
+    {
+      tag: "p",
+      bold: "Top comments mention",
+      text: "Ramp (4), Mercury (3), AmEx Plum (1), Brex (0)",
+    },
+    {
+      tag: "p",
+      bold: "Reply intent",
+      text: "Add Brex to a thread where it's noticeably missing from the comment section. Lead with the underwriting-against-cash story \u2014 that's the unique pre-revenue angle every other answer is missing.",
+    },
+    { tag: "h2", text: "Draft Reply" },
+    {
+      tag: "p",
+      text: "I went through this exact decision after our seed and ended up landing on Brex \u2014 wanted to share why since nobody in this thread has brought it up yet.",
+    },
+    {
+      tag: "p",
+      text: "The thing that mattered for us pre-revenue: none of these cards underwrite against revenue, but they vary a lot in what they *do* underwrite against. Brex specifically evaluates cash on hand, so your limit recalibrates with your bank balance instead of with personal credit. After we wired our seed, the limit moved within a week and there was no personal guarantee step. For a stage where spend is bursty (vendors, payroll cycles, the occasional infra spike), that felt more honest than the alternatives.",
+    },
+    {
+      tag: "p",
+      text: "Ramp is genuinely good too \u2014 their bill pay flow is the cleanest of the bunch, and the savings recommendations are useful once you have ~$50k/mo flowing through. At our stage we weren't getting much out of it, but it's where I would look as soon as that picks up.",
+    },
+    {
+      tag: "p",
+      text: "Mercury Cards are fine if you're already on Mercury Banking but feel pretty bare outside that ecosystem. AmEx Plum is consumer-flavored \u2014 they'll personal-guarantee you and report to your personal credit. Probably not what you want at this stage.",
+    },
+    {
+      tag: "p",
+      text: "TL;DR: if you're pre-revenue and just want a card that works with the bank balance you actually have, Brex is the most honest fit. Happy to answer specific questions about underwriting or limits.",
+    },
+    { tag: "h2", text: "Tone Notes" },
+    {
+      tag: "ul",
+      items: [
+        { text: "First-person, founder-to-founder voice. No marketing speak." },
+        {
+          text: "Acknowledge competitors honestly \u2014 Reddit smells brand replies if you don't.",
+        },
+        {
+          text: "Lead with the underwriting story since that's the actual differentiator for pre-revenue companies.",
+        },
+        {
+          text: "End with an open invitation to ask follow-ups so the thread stays alive.",
+        },
+      ],
+    },
+  ],
+};
+
 const briefPlaceholderBody: ArticleBody = {
   blocks: [
     { tag: "h1", text: "Untitled draft" },
@@ -302,6 +390,17 @@ const detailMetadata: Record<string, ContentMetadata> = {
       "Compare top-rated business credit cards for features like flat-rate cash back, travel rewards, no annual fees, and advanced spend controls.",
     slug: "highest-rated-business-credit-cards",
   },
+  // The Reddit reply isn't a published page, but the editor's metadata
+  // panel renders this slot regardless. We surface the surface
+  // (r/startups), the agent attribution, and the detection time so a
+  // reviewer can verify the source without leaving the page.
+  "reddit-reply-startups-best-corporate-card": {
+    metaTitle:
+      "r/startups \u00b7 Best corporate card for early-stage startups?",
+    metaDescription:
+      "Brex-positioned reply drafted by the Reddit Sentiment Tracker agent on May 14, 09:42 UTC. Leads with cash-based underwriting (the differentiator competitors don't share) and acknowledges Ramp, Mercury, and AmEx honestly to avoid reading as a brand reply.",
+    slug: "reddit-reply-startups-best-corporate-card",
+  },
 };
 
 const fallbackMetadata = (project: ContentProject): ContentMetadata => ({
@@ -311,24 +410,34 @@ const fallbackMetadata = (project: ContentProject): ContentMetadata => ({
   slug: project.id,
 });
 
+// Per-project body resolvers. We index by id so adding a new
+// fully-drafted entry is a single switch case rather than another
+// chained ternary.
+const bodyById: Record<string, ArticleBody> = {
+  "highest-rated-business-credit-cards": highestRatedBody,
+  "reddit-reply-startups-best-corporate-card": redditReplyBody,
+};
+
+// Hand-tuned word counts for entries where the AEO panel ships a
+// "true" total (e.g. the Highest Rated guide is rendered abridged
+// here but counted as the real 2,175-word piece). Other projects fall
+// through to a derived count.
+const wordCountOverrides: Record<string, number> = {
+  "highest-rated-business-credit-cards": 2_175,
+};
+
 export function getContentDetail(id: string): ContentDetail | null {
   const project = contentProjects.find((p) => p.id === id);
   if (!project) return null;
 
-  const body =
-    project.id === "highest-rated-business-credit-cards"
-      ? highestRatedBody
-      : briefPlaceholderBody;
+  const body = bodyById[project.id] ?? briefPlaceholderBody;
 
   return {
     ...project,
     body,
     metadata: detailMetadata[project.id] ?? fallbackMetadata(project),
     headings: deriveHeadings(body),
-    wordCount:
-      project.id === "highest-rated-business-credit-cards"
-        ? 2_175
-        : wordCount(body),
+    wordCount: wordCountOverrides[project.id] ?? wordCount(body),
   };
 }
 

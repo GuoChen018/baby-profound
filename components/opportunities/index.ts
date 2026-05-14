@@ -3,7 +3,8 @@ export {
   OpportunityTile,
   type OpportunityTileProps,
   type PrototypeOpportunity,
-  type PrototypeOpportunityType,
+  type OpportunityReason,
+  type OpportunityImpact,
 } from "./OpportunityTile";
 export {
   OpportunityFilters,

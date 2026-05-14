@@ -18,7 +18,11 @@ export type ContentTemplate =
   | "FAQ"
   | "Comparison"
   | "Listicle"
-  | "Guide";
+  | "Guide"
+  // Short-form artefact produced by reply-drafting agents (e.g. the
+  // Reddit Sentiment Tracker). Same editor surface, different
+  // workflow shape — no AEO scoring, no "Top-cited pages" gather.
+  | "Social Reply";
 
 /** "generation" = greenfield content; "optimization" = improve existing URL. */
 export type ContentWorkflow = "generation" | "optimization";

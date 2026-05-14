@@ -17,6 +17,7 @@
  */
 
 import {
+  BoltIcon,
   ChatBubbleLeftRightIcon,
   ChevronRightIcon,
   EnvelopeIcon,
@@ -49,6 +50,13 @@ const TYPE_GLYPH: Record<
   LinkedIn: {
     Icon: ChatBubbleLeftRightIcon,
     tone: "text-badge-blue-emphasis",
+  },
+  // See `OpportunityCard.TYPE_ICON` for the Agent type rationale —
+  // bolt + purple keeps the visual language consistent across the
+  // list card and the inset action card on the detail page.
+  Agent: {
+    Icon: BoltIcon,
+    tone: "text-badge-purple-emphasis",
   },
 };
 

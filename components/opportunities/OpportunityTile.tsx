@@ -1,67 +1,129 @@
 "use client";
 
 /**
- * OpportunityTile — right-rail tile for the AEO Overview prototype's
- * "Top Opportunities" section.
+ * OpportunityTile — right-rail tile for the Overview "Top
+ * Opportunities" section.
  *
- * Profound's opportunity surface follows a 4-zone pattern:
+ * The card is small but layered:
  *
- *   1. **Pill** — the action type (Outreach, Optimize Page, …). Tells
- *      the user *what they'd be doing*, not what the content is about.
- *   2. **Title** — action-first opportunity framing ("Create a content
- *      brief for a high-volume topic where Brex lost ranking this
- *      week"). Leads with what's possible, not what went wrong.
- *   3. **Context line** — one sentence explaining why this matters
- *      *right now*. Pre-joined with middots in the data layer so the
- *      tile just renders it. Should answer at least one of: what's the
- *      volume, where's the competitive gap, what's the timing.
- *   4. **Current performance** — the specific gap signal ("Citation
- *      share: Not mentioned · top business credit cards"). The label
- *      is the metric, the value is the gap, and the optional
- *      sub-context tells you WHERE the gap is.
+ *   1. **Impact badge** — `High Impact` / `Medium` / `Low`, color-coded
+ *      so a marketer can scan the rail and immediately separate the
+ *      "drop everything and do this" tiles from the "useful but not
+ *      urgent" ones. The earlier version of this card omitted impact
+ *      and relied on the `reason` line alone to convey urgency — but
+ *      reading three middot-joined fields takes longer than glancing
+ *      at a colored pill, so we put the pill back in for at-a-glance
+ *      priority signaling.
+ *   2. **Action** — a single sentence, verb-first, that names what
+ *      to do and the target it acts on. Examples:
+ *        - "Create content brief for 'top business credit cards'"
+ *        - "Strengthen page brex.com/high-limit-business-credit-card"
+ *        - "Reach out to Jerod Morales (Forbes)"
+ *      The verb tells you the action type, which is why we dropped
+ *      the action-type pill that used to live at the top of the card
+ *      — it was carrying information already present in the title.
+ *   3. **Reason** — a 3-slot middot string that answers "why this
+ *      one?". The slots, in order, are:
+ *        - **anchor**     — the magnitude ("164k/mo", "0.1% share",
+ *                           "12 mentions"). Always required.
+ *        - **scope**      — optional channel/time qualifier when not
+ *                           already baked into the action ("May
+ *                           coverage", "Forbes"). Most cards skip it.
+ *        - **comparison** — the trend, competitor signal, or gap
+ *                           callout that makes this notable ("slipped
+ *                           #2 → #3", "Ramp at 14%", "unmonitored").
+ *                           Always required.
+ *      Reason answers "why this one?", while the badge answers "how
+ *      urgent?". Both are needed because they're different questions.
  *
- * The whole tile is the `<Link>` — no separate CTA. Hover lifts the
- * surface; the parent `<RailGroup>` owns the bordered chrome and
- * hairline dividers between sibling tiles (see `AgentReviewCard` for
- * the matching pattern).
+ * The chevron sits on a `self-center` so it floats vertically
+ * centered against the badge+action+reason stack (matches
+ * AgentReviewCard). The whole tile is the `<Link>`. Parent
+ * `<RailGroup>` provides the bordered container + hairline dividers.
  *
- * Earlier versions of this tile shipped a `mode="metrics"` API that
- * stacked 2-3 metric rows under the headline. We've dropped that
- * entirely — three stacked metrics added cognitive load instead of
- * reducing it. Title + context + a single performance line do the
- * same work and scan in one beat.
+ * Earlier versions of this tile had a pill (action type), an
+ * action-type icon table (TYPE_META), a free-form context paragraph,
+ * and a "currentPerformance" footer row. All four are gone — the
+ * new schema replaces them with the structured (impact, action,
+ * reason) triple.
  */
 
 import Link from "next/link";
-import {
-  ChevronRightIcon,
-  BoltIcon,
-  DocumentTextIcon,
-  EnvelopeIcon,
-  PencilIcon,
-  SparklesIcon,
-} from "@/components/ui/icons";
-import { Tag } from "@/components/ui";
+import { ChevronRightIcon } from "@/components/ui/icons";
+import { Badge, type BadgeColor } from "@/components/ui";
 import { cn } from "@/lib/cn";
 
-export type PrototypeOpportunityType =
-  | "Content Creation"
-  | "Optimize Page"
-  | "Create Content Brief"
-  | "Outreach"
-  | "Set Up Agent";
+/**
+ * Impact tiers. Three levels are enough — adding a fourth ("Urgent",
+ * "Critical", etc.) starts diluting the signal. Profound's product
+ * tends to use the same three-tier scheme so the marketer doesn't
+ * have to relearn a vocabulary across surfaces.
+ *
+ * The tier→color mapping uses the existing chromatic badge tokens:
+ *   - High   → green  (think "high-leverage opportunity to grab" —
+ *                      green reads as positive/actionable, not
+ *                      alarming. We tried red first; the dark-mode
+ *                      red pill was visually loud enough that it
+ *                      overshadowed the action title underneath
+ *                      and felt closer to a crisis indicator than a
+ *                      priority signal. Green keeps the same
+ *                      muted-bg-plus-light-text recipe but with a
+ *                      calmer hue.)
+ *   - Medium → amber  (warm but not alarming — same recipe as green)
+ *   - Low    → grey   (neutral parking lot)
+ *
+ * Labels are pinned to the original screenshot — "High Impact" spells
+ * the noun out, but "Medium" and "Low" stand alone (because "Medium
+ * Impact" reads slightly redundant once the High Impact neighbor has
+ * established the dimension).
+ */
+export type OpportunityImpact = "High" | "Medium" | "Low";
+
+const IMPACT_META: Record<
+  OpportunityImpact,
+  { label: string; color: BadgeColor }
+> = {
+  High: { label: "High Impact", color: "green" },
+  Medium: { label: "Medium", color: "amber" },
+  Low: { label: "Low", color: "grey" },
+};
+
+/**
+ * Structured reason. The data layer is responsible for filling
+ * `anchor` and `comparison`; `scope` is reserved for the cases
+ * where the action doesn't already name the scope (e.g. an
+ * outreach card where the action is "Reach out to <person>" and
+ * the scope adds the publication/time window).
+ */
+export type OpportunityReason = {
+  /** Primary magnitude: "164k/mo", "0.1% share", "12 mentions". */
+  anchor: string;
+  /** Optional channel / time-window qualifier. */
+  scope?: string;
+  /** Comparison, trend, or gap callout. */
+  comparison: string;
+};
 
 export type PrototypeOpportunity = {
   id: string;
-  type: PrototypeOpportunityType;
-  /** Action-first opportunity framing, 2-3 lines max in the rail. */
-  title: string;
-  /** One-sentence context. Already joined with " · " in the data layer. */
-  context: string;
-  /** Specific gap signal. `label` is the metric, `value` is the gap. */
-  currentPerformance: { label: string; value: string };
-  /** Detail-page href, baked already-prefixed if this lives inside a
-   *  prototype namespace. The tile passes it straight to `<Link>`. */
+  /**
+   * Priority signal. Required — every rail tile gets a badge so the
+   * column reads as a scannable triage list rather than five
+   * equal-weight options. Cards default to `Medium` if the data
+   * author can't decide.
+   */
+  impact: OpportunityImpact;
+  /**
+   * Full action sentence. Verb-first; the target (topic, URL,
+   * person, channel) is embedded inline. Examples:
+   *   - "Create content brief for 'top business credit cards'"
+   *   - "Strengthen page brex.com/high-limit-business-credit-card"
+   *   - "Reach out to Jerod Morales (Forbes)"
+   *   - "Monitor r/startups corporate card threads"
+   */
+  action: string;
+  reason: OpportunityReason;
+  /** Detail-page href. Resolved already-prefixed by the data layer. */
   href: string;
 };
 
@@ -71,34 +133,23 @@ export interface OpportunityTileProps {
 }
 
 /**
- * Per-action-type icon + accent tone. Tone matches the badge palette
- * conventions used by `OpportunityCard` so the AEO Overview prototype
- * stays visually consistent with the canonical opportunities surface.
- *
- *   - Content actions (Creation, Brief, Optimize Page) → green / amber
- *   - Outreach → green (relationship work)
- *   - Set Up Agent → blue (automation)
+ * Compose the reason slots into a single middot-joined string.
+ * Filtering out empty slots keeps the rendered line clean when
+ * `scope` is omitted (the common case).
  */
-const TYPE_META: Record<
-  PrototypeOpportunityType,
-  { Icon: React.ElementType; tone: string }
-> = {
-  "Content Creation": { Icon: PencilIcon, tone: "text-text-green" },
-  "Optimize Page": { Icon: SparklesIcon, tone: "text-badge-amber-emphasis" },
-  "Create Content Brief": {
-    Icon: DocumentTextIcon,
-    tone: "text-badge-amber-emphasis",
-  },
-  Outreach: { Icon: EnvelopeIcon, tone: "text-text-green" },
-  "Set Up Agent": { Icon: BoltIcon, tone: "text-badge-blue-emphasis" },
-};
+function formatReason(reason: OpportunityReason): string {
+  return [reason.anchor, reason.scope, reason.comparison]
+    .filter(Boolean)
+    .join(" \u00b7 ");
+}
 
 export function OpportunityTile({
   opportunity,
   className,
 }: OpportunityTileProps) {
-  const { type, title, context, currentPerformance, href } = opportunity;
-  const { Icon: TypeIcon, tone } = TYPE_META[type];
+  const { impact, action, reason, href } = opportunity;
+  const reasonLine = formatReason(reason);
+  const impactMeta = IMPACT_META[impact];
 
   return (
     <Link
@@ -112,49 +163,58 @@ export function OpportunityTile({
         className,
       )}
     >
-      {/* Top row — action pill + trailing chevron. The chevron is the
-          only "this opens something" cue (the whole row is clickable
-          but the chevron makes it explicit). */}
-      <div className="flex items-center justify-between gap-8">
-        <Tag
-          asSpan
-          size="sm"
-          iconLeft={<TypeIcon className={cn("size-12", tone)} />}
-          className="bg-bg-tertiary"
-        >
-          {type}
-        </Tag>
+      <div className="flex items-start gap-12">
+        <div className="flex-1 min-w-0">
+          {/* Impact badge — top of the card so it's the first thing
+              you see when scanning the rail. `mb-10` gives it a
+              clear pause from the action title underneath; tighter
+              spacing made the badge feel attached to the title
+              instead of acting as a separate metadata row.
+              `h-24 px-10` overrides the Badge's default `sm` sizing
+              (`h-18 px-6`) — the sm size was visually pinched once
+              the muted-bg dark-mode recipe was applied, and h-24
+              gives ~5px of vertical padding around the 14px-tall
+              text-mini glyphs (vs. ~4px at h-22), which reads as
+              the roomier pill the user wanted without going so far
+              that the badge dwarfs the action title underneath.
+              `!border-0` strips the Badge's default 1px hairline
+              border — needs `!` because the project's `cn()` is
+              plain clsx (no tailwind-merge), so without important
+              the base `border-[1px]` may or may not lose the cascade
+              fight depending on source order. */}
+          <Badge
+            color={impactMeta.color}
+            size="sm"
+            className="mb-10 h-24 px-10 !border-0"
+          >
+            {impactMeta.label}
+          </Badge>
+          {/* Action — primary text. Body/Medium (14/20, weight 500)
+              keeps it level with `AgentReviewCard`'s headline so
+              both rail tiles share one typographic register.
+              3-line clamp protects against very long actions while
+              giving titles like "Create content brief for 'top
+              business credit cards'" room to wrap. */}
+          <p className="text-paragraph font-medium text-text-primary line-clamp-3">
+            {action}
+          </p>
+          {/* Reason — the current-state evidence. 2-line clamp
+              catches the rare 3-slot string that runs long
+              (e.g. "12 Ramp citations · Forbes · 0 Brex citations").
+              `leading-[18px]` overrides the default `text-mini`
+              line-height (14px, which is too tight for two-line wraps
+              — at 12px font that's a 1.17 ratio that reads as
+              cramped). 18px gives a 1.5 ratio, matching what we use
+              for body paragraphs. */}
+          <p className="mt-8 text-mini leading-[18px] text-text-secondary line-clamp-3">
+            {reasonLine}
+          </p>
+        </div>
         <ChevronRightIcon
           aria-hidden
-          className="size-14 text-text-tertiary shrink-0 group-hover:text-text-primary transition-colors"
+          className="size-14 self-center text-text-tertiary shrink-0 group-hover:text-text-primary transition-colors"
         />
       </div>
-
-      {/* Title — action-first, 14/20 so two-line wraps breathe.
-          `font-medium` puts it visually above the body but below
-          headlines/KPIs which use SemiBold. */}
-      <p className="mt-10 text-paragraph font-medium text-text-primary line-clamp-3">
-        {title}
-      </p>
-
-      {/* Context — secondary text, pre-joined middot string. 2-line
-          clamp catches the rare longer string (e.g. "Jerod Morales ·
-          Forbes · cited Ramp 12x this month · Brex 0x"). */}
-      <p className="mt-6 text-mini text-text-secondary line-clamp-2">
-        {context}
-      </p>
-
-      {/* Current performance — the gap signal. Label gets `font-medium`
-          so the metric name reads as a header for the value. The
-          value + optional sub-context (joined into one string by the
-          data layer) stays at the tertiary weight so the eye lands on
-          the label first. */}
-      <p className="mt-10 text-mini text-text-tertiary line-clamp-2">
-        <span className="font-medium text-text-secondary">
-          {currentPerformance.label}:
-        </span>{" "}
-        {currentPerformance.value}
-      </p>
     </Link>
   );
 }
