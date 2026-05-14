@@ -117,6 +117,7 @@ export default async function OpportunityDetailPage({ params }: DetailPageProps)
             type={opp.type}
             typeLabel={opp.actionCard.type}
             description={opp.actionCard.description}
+            href={opp.actionCard.href}
           />
         ) : null}
 

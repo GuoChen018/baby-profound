@@ -109,7 +109,18 @@ export type Opportunity = {
   description: string;
   currentPerformance: CurrentPerformance;
   /** Detail-only fields. Optional on list view. */
-  actionCard?: { type: string; description: string };
+  actionCard?: {
+    type: string;
+    description: string;
+    /**
+     * Where the action card deep-links. In production this would
+     * route to the relevant tool (Content → editor, Agent → editor,
+     * Outreach → CRM, etc.). Here we wire it to a real in-app page
+     * so the prototype reads as a closed-loop flow rather than a
+     * dead-end card.
+     */
+    href?: string;
+  };
   implementation?: string[];
   rationale?: string;
 };

@@ -22,7 +22,13 @@ export type ContentTemplate =
   // Short-form artefact produced by reply-drafting agents (e.g. the
   // Reddit Sentiment Tracker). Same editor surface, different
   // workflow shape — no AEO scoring, no "Top-cited pages" gather.
-  | "Social Reply";
+  | "Social Reply"
+  // The "research + outline" stage that precedes a Blog Post —
+  // surfaced when an opportunity's action card kicks off content
+  // creation. The editor renders it identically to a Blog Post but
+  // the project list reads "Content Brief" so reviewers can scan
+  // the difference between briefs (pre-writing) and drafts.
+  | "Content Brief";
 
 /** "generation" = greenfield content; "optimization" = improve existing URL. */
 export type ContentWorkflow = "generation" | "optimization";

@@ -5,9 +5,14 @@
  * `screenshot-agent-run.png`.
  *
  * Layout (top → bottom, full bleed within the workspace main column):
- *   1. Plan-limit Banner (full-width, no horizontal padding)
- *   2. Sub-header bar — `‹ Back` on the left, `Past runs` + `Edit agent` right
- *   3. Two-pane AgentRunPane — left form, right output skeleton
+ *   1. Sub-header bar — `‹ Back` on the left, `Past runs` + `Edit agent` right
+ *   2. Two-pane AgentRunPane — left form, right output skeleton
+ *
+ * Previously the page led with a "Plan limit reached" warning banner
+ * (`components/agents/Banner.tsx`) sampled from the Profound capture.
+ * Removed per user request — the banner read as production-billing
+ * chrome that doesn't belong in this sandbox. The Banner primitive
+ * is kept around for future warning surfaces.
  *
  * If the id doesn't resolve to a known agent (e.g. a template id from the
  * Overview grid), we fall back to the canonical "Business Credit Card" agent
@@ -17,7 +22,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui";
 import { ChevronLeftIcon } from "@/components/ui/icons";
-import { AgentRunPane, Banner } from "@/components/agents";
+import { AgentRunPane } from "@/components/agents";
 import { agentTemplates, agents, getAgentById } from "@/lib/data/agents";
 import { cn } from "@/lib/cn";
 
@@ -57,22 +62,6 @@ export default async function AgentRunPage({
 
   return (
     <div className="flex flex-col min-h-full">
-      <Banner
-        variant="error"
-        action={
-          <Link
-            href="/agents"
-            className="underline underline-offset-2 hover:text-text-primary"
-          >
-            View usage
-          </Link>
-        }
-      >
-        <strong className="font-semibold">Plan limit reached</strong>
-        <span className="text-text-secondary mx-6">·</span>
-        Using overage credits
-      </Banner>
-
       <header className="flex items-center justify-between gap-16 px-32 py-12 border-b border-fill-quaternary">
         <Link
           href="/agents"

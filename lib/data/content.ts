@@ -24,6 +24,26 @@ import type {
 
 export const contentProjects: ContentProject[] = [
   {
+    // Surfaced from the AEO Overview opportunity rail (see
+    // `app/(workspace)/overview/data.ts` — the High-Impact "Create
+    // new content to defend ranking on 'top business credit cards'"
+    // card deep-links to this brief). Status is `Draft` because
+    // the brief was just generated when the user clicked through
+    // from the opportunity action card; the actual page hasn't
+    // been written yet. Workflow is `generation` (new content,
+    // not optimization of an existing URL).
+    id: "top-business-credit-cards-defense-brief",
+    title:
+      "Defense brief: top business credit cards \u2014 reclaim rank #2",
+    status: "Draft",
+    template: "Content Brief",
+    workflow: "generation",
+    citedPlatforms: [],
+    updatedLabel: "Just now",
+    updatedAt: "2026-05-14T19:30:00Z",
+    owner: { name: "Content Brief Agent", initials: "CB" },
+  },
+  {
     // Surfaced from the AEO Overview "Agent for review" rail (see
     // `lib/data/agent-reviews.ts`). The Reddit Sentiment Tracker agent
     // produces draft replies to detected threads; humans review here.
@@ -346,6 +366,86 @@ const briefPlaceholderBody: ArticleBody = {
   ],
 };
 
+/**
+ * Defense brief for the "top business credit cards" rank-drop. The
+ * opportunity rail's High-Impact card deep-links here — so the body
+ * needs to read as if Profound's Content Brief workflow just
+ * generated the brief moments earlier (status reads `Draft`,
+ * timestamp reads `Just now`).
+ *
+ * Structure mirrors `highestRatedBody` because both target the same
+ * topic; this one leans into the specific defensive angle (Ramp
+ * pulled ahead with two new pages → Brex needs an authoritative
+ * 2026-anchored ranking piece) instead of the original evergreen
+ * comparison.
+ */
+const defenseBriefBody: ArticleBody = {
+  blocks: [
+    {
+      tag: "h1",
+      text: "Defense brief: top business credit cards \u2014 reclaim rank #2",
+    },
+    { tag: "hr" },
+    { tag: "h2", text: "Strategic Overview" },
+    { tag: "p", bold: "Target topic", text: "top business credit cards" },
+    {
+      tag: "p",
+      bold: "Why now",
+      text: "Brex slipped from rank #2 to #3 this period (citation share 11.2% \u2192 8.8%). Ramp added two new pages this month on this topic and is now cited 14% of the time vs Brex's 8.8%. Topic carries 164k monthly prompts \u2014 the single highest-volume query in the corporate-card category.",
+    },
+    { tag: "p", text: "Target prompts:" },
+    {
+      tag: "ul",
+      items: [
+        {
+          text: "What are the top business credit cards in 2026?",
+        },
+        {
+          text: "Best corporate cards for series A/B startups with $1M+ monthly spend",
+        },
+        {
+          text: "Compare Brex, Ramp, Mercury, and AmEx Business Platinum",
+        },
+        {
+          text: "Which business credit card has the highest limits?",
+        },
+      ],
+    },
+    {
+      tag: "p",
+      bold: "Target platforms",
+      text: "ChatGPT, Perplexity, Google AI Overviews, Microsoft Copilot, Gemini",
+    },
+    { tag: "h2", text: "Outline" },
+    {
+      tag: "p",
+      text: "2026-anchored ranking piece with explicit benchmark data. The page should open with a definitional answer to 'what is a business credit card' (the lead paragraph is what AI assistants tend to extract), then move through the top seven cards by use-case using a fixed skeleton so models can pull structured comparisons cleanly.",
+    },
+    {
+      tag: "ul",
+      items: [
+        {
+          text: "Lead with cash-on-hand underwriting as Brex's #1 differentiator \u2014 it's the angle Ramp's recent pages don't argue against.",
+        },
+        {
+          text: "Anchor every claim to 2026 numbers (limits, rewards, sign-up bonuses) so the page reads as more recent than Ramp's two May pages.",
+        },
+        {
+          text: "Include a FAQPage schema block with the 10 highest-volume definitional prompts pulled from Answer Engine Insights.",
+        },
+        {
+          text: "Ship a 6-column comparison table (Brex, Ramp, Mercury, AmEx Plum, Chase Ink, Capital One Spark, US Bank Triple Cash) so AI assistants can quote pair-wise comparisons.",
+        },
+      ],
+    },
+    { tag: "h2", text: "Notes" },
+    {
+      tag: "p",
+      text: "Pair the launch with a `lastmod` ping to Bing and Google so the new structured data is re-crawled within 48 hours. The defensive intent is to outrank Ramp's two new pages on the same prompts, so recency signal matters as much as content depth.",
+    },
+  ],
+};
+
 // ────────────────────────────────────────────────────────────────────
 // Headings list (right-pane "Headings" card).
 // ────────────────────────────────────────────────────────────────────
@@ -401,6 +501,13 @@ const detailMetadata: Record<string, ContentMetadata> = {
       "Brex-positioned reply drafted by the Reddit Sentiment Tracker agent on May 14, 09:42 UTC. Leads with cash-based underwriting (the differentiator competitors don't share) and acknowledges Ramp, Mercury, and AmEx honestly to avoid reading as a brand reply.",
     slug: "reddit-reply-startups-best-corporate-card",
   },
+  "top-business-credit-cards-defense-brief": {
+    metaTitle:
+      "Top Business Credit Cards 2026: Compare Limits, Rewards, and Spend Controls",
+    metaDescription:
+      "Defensive brief targeting the 164k-monthly-prompt 'top business credit cards' topic where Brex slipped from #2 to #3 this period. Lead with cash-on-hand underwriting, anchor every claim to 2026 numbers, and ship a 6-column comparison table.",
+    slug: "top-business-credit-cards-2026",
+  },
 };
 
 const fallbackMetadata = (project: ContentProject): ContentMetadata => ({
@@ -416,6 +523,7 @@ const fallbackMetadata = (project: ContentProject): ContentMetadata => ({
 const bodyById: Record<string, ArticleBody> = {
   "highest-rated-business-credit-cards": highestRatedBody,
   "reddit-reply-startups-best-corporate-card": redditReplyBody,
+  "top-business-credit-cards-defense-brief": defenseBriefBody,
 };
 
 // Hand-tuned word counts for entries where the AEO panel ships a

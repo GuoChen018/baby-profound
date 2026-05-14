@@ -271,7 +271,11 @@ export const overviewOpportunities: PrototypeOpportunity[] = [
       anchor: "164k/month",
       comparison: "rank #2 \u2192 #3 \u00b7 citation share 11.2% \u2192 8.8%",
     },
-    href: "/opportunities",
+    // Deep-links to its own detail page (defined in
+    // `lib/data/opportunities.ts`). The detail page's action card
+    // then routes to the freshly-drafted brief in the Content
+    // editor, completing the loop opp tile → detail → editor.
+    href: "/opportunities/op-content-brief-top-business-credit-cards",
   },
   {
     id: "op-agent-competitor-response",

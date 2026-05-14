@@ -63,6 +63,18 @@ export type Agent = {
   outputs: AgentOutputBlock[];
   /** Brand mark for the agent's avatar. */
   brand: AgentBrand;
+  /**
+   * `true` when the agent was just drafted by the AI Assistant (i.e.
+   * the user landed here from an opportunity's "Create new agent"
+   * action card). The editor reads this flag and:
+   *   - Defaults the left palette tab to "Assistant"
+   *   - Renders the drafting conversation + summary in that tab
+   *     instead of the "Coming soon" placeholder
+   * Persisting the flag on the agent record (vs. a URL param) means
+   * the AI-drafted feel persists across page reloads, which matches
+   * the "draft is yours to review" mental model.
+   */
+  draftedByAI?: boolean;
 };
 
 export type AgentTemplate = {

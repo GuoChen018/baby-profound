@@ -198,6 +198,60 @@ export const agents: Agent[] = [
       { name: "Missing pages", type: "array" },
     ],
   },
+  {
+    // Surfaced from the AEO Overview opportunity rail. The agent
+    // opportunity's action card deep-links to this record's editor;
+    // the `draftedByAI: true` flag flips the editor's left panel to
+    // the Assistant tab so the user lands on the AI drafting
+    // conversation instead of the Nodes palette.
+    //
+    // Status is "Draft" because the agent was just created — the
+    // user hasn't reviewed/published it yet. The four outputs
+    // (Slack alert, brief, battle-card update, run summary) mirror
+    // the implementation steps spelled out on the opportunity
+    // detail page, so the run-pane skeleton + the brief-on-paper
+    // line up.
+    id: "ag-ramp-launch-watch",
+    name: "Ramp Launch Watch",
+    description:
+      "Diffs Ramp's marketing sitemap every 6 hours. When a new page lands on a contested topic, the agent drafts a Brex response brief, posts a Slack alert with the URL + topic + current citation share, and appends the page to the Brex/Ramp competitive battle card.",
+    status: "Draft",
+    createdBy: guo,
+    lastModifiedAt: "2026-05-14T19:30:00Z",
+    estimatedUsage: 11,
+    brand: "profound",
+    draftedByAI: true,
+    inputs: [
+      {
+        name: "Contested topics",
+        type: "array",
+        required: true,
+        placeholder:
+          "top business credit cards, high-limit, startup card, EIN-only",
+        hint: "Topics where Ramp gaining a page would meaningfully shift Brex's citation share.",
+      },
+      {
+        name: "Slack channel",
+        type: "string",
+        required: true,
+        placeholder: "#marketing-aeo",
+      },
+      {
+        name: "Battle card URL",
+        type: "string",
+        required: false,
+        placeholder: "https://notion.so/brex-ramp-battle-card",
+        hint: "Optional. If set, the agent appends a row per detected page.",
+      },
+    ],
+    outputs: [
+      { name: "New Ramp page", type: "json" },
+      { name: "Brex response brief", type: "string" },
+      { name: "Slack alert", type: "string" },
+      { name: "Battle card update", type: "string" },
+      { name: "Run summary", type: "string" },
+    ],
+  },
 ];
 
 /** Lookup helper used by both the run page and the editor placeholder. */

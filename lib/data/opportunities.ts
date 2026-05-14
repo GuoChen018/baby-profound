@@ -85,8 +85,49 @@ function enrich(o: Opportunity): Opportunity {
 const extras: Opportunity[] = [
   {
     // ────────────────────────────────────────────────────────────
+    // Content opportunity — Overview rail position 1.
+    //
+    // The "Create new content to defend ranking on 'top business
+    // credit cards'" tile deep-links to this detail page (see
+    // `app/(workspace)/overview/data.ts`). The detail page in turn
+    // routes the action card to the content editor at
+    // `/content/top-business-credit-cards-defense-brief` where the
+    // marketer reviews + extends the AI-drafted brief.
+    // ────────────────────────────────────────────────────────────
+    id: "op-content-brief-top-business-credit-cards",
+    type: "Content Creation",
+    target: {
+      kind: "topic",
+      label: "\u2018top business credit cards\u2019",
+    },
+    headline:
+      "Create a defensive ranking piece for 'top business credit cards' before Ramp's two new pages keep stealing rank.",
+    description:
+      "Brex slipped #2 \u2192 #3 this period and citation share dropped from 11.2% to 8.8% on this topic. The topic carries 164k monthly prompts \u2014 the highest-volume query in the corporate card category \u2014 so every rank position is worth measurable visibility share. Ramp published two new pages this month that are now picking up citations Brex used to own; a fresh 2026-anchored ranking piece is the cheapest, most direct way to take rank back.",
+    currentPerformance: { status: "Citation Share", value: 8.8 },
+    actionCard: {
+      type: "Content",
+      description:
+        "Open the AI-drafted defense brief in the Content editor \u2014 the outline is ready (lead with cash-on-hand underwriting, 6-column comparison table, FAQPage schema). A writer takes it from outline to a publishable 2026-anchored ranking piece.",
+      // Routes straight to the brief in the Content editor so the
+      // marketer doesn't have to hunt for the project that was
+      // just created.
+      href: "/content/top-business-credit-cards-defense-brief",
+    },
+    implementation: [
+      "Review the AI-generated brief in the Content editor and lock the headline + target prompts (the outline already pulls the four highest-volume definitional queries from Answer Engine Insights).",
+      "Lead with a one-paragraph answer to 'what is a business credit card' so AI assistants have an extractable lead. Then ship the 6-column comparison table covering Brex, Ramp, Mercury, AmEx Plum, Chase Ink, and Capital One Spark.",
+      "Anchor every claim to 2026 numbers (limits, rewards, sign-up bonuses). Ramp's two new May pages are dated; the freshness signal is what makes them currently outrank Brex's older content.",
+      "Insert a FAQPage schema block with the 10 highest-volume definitional prompts from Answer Engine Insights so the page is structured for direct AI extraction.",
+      "Publish and ping Bing + Google via `lastmod` so the new structured data is re-crawled within 48 hours. Compare citation share weekly; this defensive piece should claw back ~2-3 percentage points within 4 weeks.",
+    ],
+    rationale:
+      "164k monthly prompts means each percentage point of citation share is roughly 1,600 monthly impressions on AI-generated answers \u2014 substantial AEO leverage on a single page. Ramp's gain is recency-driven (their two new May pages are dated, Brex's existing coverage is 2024-anchored), so the cheapest fix is a 2026-dated ranking piece that mirrors Ramp's structure while pushing Brex's cash-on-hand underwriting story \u2014 the differentiator Ramp can't argue against.",
+  },
+  {
+    // ────────────────────────────────────────────────────────────
     // Agent opportunity — surfaced on the Overview rail at position
-    // 3 (see `app/(workspace)/overview/data.ts`).
+    // 2 (see `app/(workspace)/overview/data.ts`).
     //
     // Detail-page narrative spells out the multi-output workflow
     // Profound's customer-pitch describes: a single agent monitors
@@ -95,7 +136,10 @@ const extras: Opportunity[] = [
     // battle-card update). The structure mirrors Profound's
     // existing template-gallery entries (each template has a clear
     // trigger + output set), so this card reads as "build the
-    // template that's missing."
+    // template that's missing." The action card deep-links to a
+    // freshly-AI-drafted agent in the editor (the agent has
+    // `draftedByAI: true`, which makes the editor open with the
+    // Assistant panel showing the drafting conversation).
     // ────────────────────────────────────────────────────────────
     id: "op-agent-competitor-response",
     type: "Agent",
@@ -107,12 +151,12 @@ const extras: Opportunity[] = [
     currentPerformance: { status: "Not Mentioned" },
     actionCard: {
       type: "Agent",
-      // Tool label is "Agents" because that's where the action
-      // routes in production. The description names the three
-      // outputs explicitly so a marketer skimming the action card
-      // can decide "yes this is worth my time" in 5 seconds.
       description:
-        "Build a Ramp Launch Watch agent that runs nightly, produces a Brex response brief for every new Ramp page, updates the competitive battle card, and posts a Slack alert with the diff.",
+        "Open the AI-drafted Ramp Launch Watch agent in the editor \u2014 the workflow is already wired (sitemap diff trigger \u2192 brief drafting \u2192 Slack alert \u2192 battle-card update). Review the steps, tweak the trigger cadence, and publish.",
+      // Routes straight to the freshly-drafted agent. The agent's
+      // `draftedByAI: true` flag flips the editor's left panel to
+      // the Assistant tab with the drafting conversation visible.
+      href: "/agents/ag-ramp-launch-watch/edit",
     },
     implementation: [
       "Configure the trigger: scrape Ramp's marketing sitemap + blog feed every 6 hours; diff against the last snapshot. Flag any page published in the last 24 hours whose title or H1 contains a topic from the Brex contested-topics list (top business credit cards, high-limit, startup card, EIN-only, expense management).",
