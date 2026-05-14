@@ -8,14 +8,23 @@
  * The icon-tile is a 32x32 rounded square containing the type icon. The
  * card is a single click-target that, in the live product, would deep-link
  * to the relevant tool (Outreach → Agents tab, Content Optimization →
- * Content tab, etc.). Here the link is a no-op stub so the affordance
- * reads but nothing breaks.
+ * Content tab, etc.). Some action cards now deep-link to real in-app
+ * pages (e.g. the content brief opportunity routes to the Content
+ * editor); the rest still fall back to `#` so the affordance reads
+ * without breaking.
+ *
+ * IMPORTANT — uses Next.js `<Link>` (not a raw `<a>`) so the GitHub
+ * Pages `basePath` is auto-prepended on the static build. The earlier
+ * `<a>` version produced bare paths like `/content/...` that 404'd on
+ * `https://<owner>.github.io/baby-profound/...`. Internal routes
+ * should always go through `<Link>` in this codebase.
  *
  * Local primitive — if a second tab grows the same "deep-link tile" pattern
  * (Knowledge Bases → source connectors comes to mind), it should be promoted
  * to `components/ui/ActionTile.tsx`.
  */
 
+import Link from "next/link";
 import {
   BoltIcon,
   ChatBubbleLeftRightIcon,
@@ -82,7 +91,7 @@ export function OpportunityActionCard({
   const label = typeLabel ?? type;
 
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         "group flex items-start gap-16",
@@ -109,6 +118,6 @@ export function OpportunityActionCard({
           {description}
         </p>
       </div>
-    </a>
+    </Link>
   );
 }
