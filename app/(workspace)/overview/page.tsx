@@ -135,84 +135,96 @@ function WhatsNewHero() {
   const loading = phase === "loading";
 
   return (
-    /* Layout:
-       - Left column owns the text stack (eyebrow → headline → body).
-       - Right column hosts the date-range pill, pinned to the TOP-right
-         so it visually anchors against the eyebrow row even when the
-         headline wraps to two lines.
+    /* Layout (stacked, not side-by-side):
+       - Row 1: HeroEyebrow + DateRangeSelect on a single row. The
+         eyebrow's natural width is short ("What's new" / "Generating
+         this week's summary…"), so the date pill sits flush against
+         it on the right without competing with the headline for
+         horizontal space.
+       - Row 2: headline + body, occupying the FULL width of the
+         main column.
+
+       Why this and not the earlier two-column flex (text on left,
+       pill on right): pinning the date pill to the section's right
+       edge in a flex row turned the title column into a `flex-1`
+       child that had to share width with the ~140px pill. Below the
+       `lg` breakpoint, the main column itself shrinks (the right
+       rail and side padding eat ~~600px), and at narrower viewports
+       the title column collapsed to ~310px — which made an 88-char
+       headline wrap to FIVE lines despite a slab of empty space
+       visible between the title and the date pill. Moving the pill
+       up to the eyebrow row gives the headline ~140px more usable
+       width back, so the same headline wraps to 2-3 lines at
+       comparable viewports.
 
        Headline responsiveness:
        - The headline font scales fluidly with `clamp(22px, 2.4vw,
          28px)` — 28px at ≥~1170px viewport, 22px at ≤~917px, and a
-         linear glide in between. The previous fixed 28px font held
-         steady right until a word couldn't fit anymore, then snapped
-         to an extra line, which read as "broken responsiveness."
-         Fluid sizing softens the perception: as the viewport
-         narrows, the headline visibly shrinks (and the wrap
-         threshold slides with it) so the change feels continuous
-         instead of stepped. Line wraps are still fundamentally
-         discrete events — that's how CSS layout works — but the
-         font transition smooths the eye.
+         linear glide in between. Fluid sizing softens the
+         perception of wrap thresholds: as the viewport narrows,
+         the headline visibly shrinks (and the wrap threshold
+         slides with it) so the change feels continuous instead of
+         stepped.
        - Line-height uses the same 1.28 ratio via `clamp(28px, 3.1vw,
          36px)` so leading scales with the font and the headline
          never gets visually cramped at smaller sizes.
        - `text-wrap: balance` (via `text-balance`) is on both the
          headline and the body so lines stay roughly equal width
          instead of stranding a single word on the last line. */
-    <section className="flex items-start justify-between gap-16">
-      <div className="min-w-0 flex-1">
+    <section>
+      <div className="flex items-center justify-between gap-16">
         <HeroEyebrow loading={loading} />
-        {/* Stable-height area. The real content is always rendered
-            (sets the container height); the skeleton overlay sits on
-            top via `absolute inset-0`. Crossfading + blur on the
-            content layer creates the "AI un-blur" reveal effect. */}
-        <div className="relative mt-12">
-          <div
-            aria-busy={loading || undefined}
-            aria-live="polite"
+        <DateRangeSelect />
+      </div>
+      {/* Stable-height area. The real content is always rendered
+          (sets the container height); the skeleton overlay sits on
+          top via `absolute inset-0`. Crossfading + blur on the
+          content layer creates the "AI un-blur" reveal effect. */}
+      <div className="relative mt-12">
+        <div
+          aria-busy={loading || undefined}
+          aria-live="polite"
+          className={cn(
+            "transition-[opacity,filter] duration-700 ease-out",
+            // `will-change` hints the GPU so the blur transition
+            // doesn't jank on slower machines.
+            "[will-change:opacity,filter]",
+            loading
+              ? "opacity-0 blur-[6px] select-none pointer-events-none"
+              : "opacity-100 blur-0",
+          )}
+        >
+          <h2
             className={cn(
-              "transition-[opacity,filter] duration-700 ease-out",
-              // `will-change` hints the GPU so the blur transition
-              // doesn't jank on slower machines.
-              "[will-change:opacity,filter]",
-              loading
-                ? "opacity-0 blur-[6px] select-none pointer-events-none"
-                : "opacity-100 blur-0",
+              "font-semibold text-text-primary text-balance",
+              "text-[clamp(22px,2.4vw,28px)]",
+              "leading-[clamp(28px,3.1vw,36px)]",
             )}
           >
-            <h2
-              className={cn(
-                "font-semibold text-text-primary text-balance",
-                "text-[clamp(22px,2.4vw,28px)]",
-                "leading-[clamp(28px,3.1vw,36px)]",
-              )}
-            >
-              {themeOfWeek.headline}
-            </h2>
-            <p className="mt-8 text-paragraph text-text-secondary max-w-[68ch] text-balance">
-              {themeOfWeek.body}
-            </p>
-          </div>
-          <div
-            aria-hidden
-            className={cn(
-              // `overflow-hidden` is the safety net for bar-count
-              // mismatches: `<HeroSkeleton />` has fixed-height
-              // rows, and if their sum exceeds the parent (which is
-              // sized by the real content underneath), the trailing
-              // bars used to overflow visually onto the KPI tabs
-              // below. Clipping keeps the silhouette neatly inside
-              // the hero's text area at every wrap variant.
-              "absolute inset-0 overflow-hidden",
-              "transition-opacity duration-500 ease-out",
-              loading ? "opacity-100" : "opacity-0 pointer-events-none",
-            )}
-          >
-            <HeroSkeleton />
-          </div>
+            {themeOfWeek.headline}
+          </h2>
+          <p className="mt-8 text-paragraph text-text-secondary max-w-[68ch] text-balance">
+            {themeOfWeek.body}
+          </p>
+        </div>
+        <div
+          aria-hidden
+          className={cn(
+            // `overflow-hidden` is the safety net for bar-count
+            // mismatches: `<HeroSkeleton />` has fixed-height
+            // rows, and if their sum exceeds the parent (which is
+            // sized by the real content underneath), the trailing
+            // bars used to overflow visually onto the KPI tabs
+            // below. Clipping keeps the silhouette neatly inside
+            // the hero's text area at every wrap variant.
+            "absolute inset-0 overflow-hidden",
+            "transition-opacity duration-500 ease-out",
+            loading ? "opacity-100" : "opacity-0 pointer-events-none",
+          )}
+        >
+          <HeroSkeleton />
         </div>
       </div>
-      <DateRangeSelect />
     </section>
   );
 }
