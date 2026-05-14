@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { PrototypePalette, PrototypePaletteProvider } from "@/components/shell";
 import "./globals.css";
 
 /* Inter Variable — `axes: ["opsz"]` enables the variable optical-size axis.
@@ -22,7 +23,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} dark h-full antialiased`}>
-      <body className="h-full">{children}</body>
+      <body className="h-full">
+        {/* Provider wraps the entire tree so the ⌘K shortcut works on every
+            route, and Sidebar / any child can call `usePalette()` to toggle. */}
+        <PrototypePaletteProvider>
+          {children}
+          <PrototypePalette />
+        </PrototypePaletteProvider>
+      </body>
     </html>
   );
 }

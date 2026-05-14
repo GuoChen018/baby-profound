@@ -19,6 +19,14 @@
   --bg-secondary: #fafafa;
   --bg-tertiary: #f5f5f5;
 
+  /* Skeleton placeholders — kept distinct from `--bg-*` / `--fill-*`
+     because skeletons need *visible* contrast against the page bg in
+     both modes. In dark mode `--bg-tertiary` (#1a1a1c) only sits ~12
+     brightness units above `--bg-primary` (#0e0e10) which makes the
+     bars practically invisible on OLED screens. */
+  --skeleton-base: #e4e4e7;
+  --skeleton-highlight: #f4f4f5;
+
   /* Fills — ink / icon / divider */
   --fill-primary: #18181a;
   --fill-secondary: #969696;
@@ -96,21 +104,31 @@
   --accent-beta: #009aff;
 }
 
-/* Dark theme overrides (apply via `.dark` on <html>) */
+/* Dark theme overrides (apply via .dark on <html>)
+ *
+ * NOTE: the Figma Color frame's dark-mode values (#1e1e1e, #252525, etc.)
+ * don't match the live Profound product, which is much closer to OLED-black.
+ * These values were sampled directly from _reference/profound screenshots
+ * using PIL — the page background is #0e0e10, the sidebar is #141416, etc.
+ * We trust the product captures over the Figma file since the captures are
+ * what the user sees and is comparing against. */
 .dark {
-  --bg-primary: #1e1e1e;
-  --bg-secondary: #252525;
-  --bg-tertiary: #343434;
+  --bg-primary: #0e0e10;
+  --bg-secondary: #141416;
+  --bg-tertiary: #1a1a1c;
+
+  --skeleton-base: #27272a;
+  --skeleton-highlight: #3a3a3d;
 
   --fill-primary: #ffffff;
   --fill-secondary: #5a5a5a;
-  --fill-tertiary: #464646;
-  --fill-quaternary: #323232;
+  --fill-tertiary: #2a2a2c;
+  --fill-quaternary: #1f1f21;
   /* fill-green, fill-red, fill-inverse: theme-stable */
 
-  --control-bg: #292929;
-  --control-hover: #333333;
-  --control-selected: #393939;
+  --control-bg: #141416;
+  --control-hover: #1a1a1c;
+  --control-selected: #232325;
   /* control-primary: theme-stable (always #18181a) */
 
   --text-primary: #ffffff;
@@ -119,29 +137,31 @@
 
   --shadow-1: rgba(0, 0, 0, 0);
   --shadow-2: rgba(0, 0, 0, 0);
-  --shadow-3: #323232;
-  --shadow-focus-ring: #2a2a2a;
+  --shadow-3: #1f1f21;
+  --shadow-focus-ring: #1a1a1c;
 }
 
 /* System-preference fallback for users without an explicit .dark class. */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    --bg-primary: #1e1e1e;
-    --bg-secondary: #252525;
-    --bg-tertiary: #343434;
+    --bg-primary: #0e0e10;
+    --bg-secondary: #141416;
+    --bg-tertiary: #1a1a1c;
+    --skeleton-base: #27272a;
+    --skeleton-highlight: #3a3a3d;
     --fill-primary: #ffffff;
     --fill-secondary: #5a5a5a;
-    --fill-tertiary: #464646;
-    --fill-quaternary: #323232;
-    --control-bg: #292929;
-    --control-hover: #333333;
-    --control-selected: #393939;
+    --fill-tertiary: #2a2a2c;
+    --fill-quaternary: #1f1f21;
+    --control-bg: #141416;
+    --control-hover: #1a1a1c;
+    --control-selected: #232325;
     --text-primary: #ffffff;
     --text-quaternary: #5a5a5a;
     --shadow-1: rgba(0, 0, 0, 0);
     --shadow-2: rgba(0, 0, 0, 0);
-    --shadow-3: #323232;
-    --shadow-focus-ring: #2a2a2a;
+    --shadow-3: #1f1f21;
+    --shadow-focus-ring: #1a1a1c;
   }
 }
 
@@ -259,10 +279,16 @@
   --text-mini--line-height: 14px;
   --text-small: 13px;
   --text-small--line-height: 16px;
+  /* `text-base` = Body/Regular (Figma node 2:4456). 14/20 with no
+     letter-spacing — Profound's canonical body copy. */
   --text-base: 14px;
-  --text-base--line-height: 1.4;
-  --text-paragraph: 13px;
-  --text-paragraph--line-height: 1.7;
+  --text-base--line-height: 20px;
+  /* `text-paragraph` is a semantic alias of Body/Regular for prose blocks
+     (hero subtitles, article body, message text). Kept distinct from
+     `text-base` so we can tune it independently later if needed, but
+     today they share the same 14/20 metric. */
+  --text-paragraph: 14px;
+  --text-paragraph--line-height: 20px;
   --text-title-mini: 18px;
   --text-title-mini--line-height: 24px;
   --text-title-small: 24px;
@@ -298,4 +324,42 @@ body {
 ::before,
 ::after {
   border-color: var(--color-border);
+}
+
+/* ------------------------------------------------------------------
+ * Skeleton shimmer
+ *
+ * Gradient-sweep effect for skeleton placeholders (e.g. the AEO
+ * Overview hero while AI-generated copy is loading). The highlight
+ * pass uses `--bg-secondary` against the `--bg-tertiary` base so the
+ * tones stay anchored in the same surface family — visible enough to
+ * read as "loading", subtle enough not to draw the eye away from the
+ * rest of the page. Auto-disables for users who prefer reduced motion.
+ * ------------------------------------------------------------------ */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--skeleton-highlight) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+  }
 }

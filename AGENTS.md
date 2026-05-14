@@ -52,10 +52,38 @@ _reference/           # Captured context (the spec). Re-readable on demand.
 - **No shadcn/ui.** Primitives are built from scratch in `components/ui/` against captured Figma frames.
 - **`clsx` for class merging.** Use `lib/cn.ts` (re-export).
 - **Zustand for state.** One slice per feature.
-- **`framer-motion` for animation,** `lucide-react` for icons, `@floating-ui/react` for popovers/menus.
+- **`framer-motion` for animation,** **`@/components/ui/icons` for icons** (Figma-extracted SVGs + heroicons solid for conceptual glyphs + heroicons outline for chevrons/arrows), `@floating-ui/react` for popovers/menus.
 - **`_reference/` is the source of truth.** Before implementing a page or component, re-read its `_reference/` folder.
-- **Never ship real customer data.** Use `lib/mockData.ts` with genericized values.
-- **Explorations live in `app/explorations/<slug>/`.** They never touch canonical pages.
+- **Never ship real customer data.** Use mock data with Brex/fintech-themed values.
+- **Explorations live in `app/explorations/<slug>/`.** They never touch canonical pages. Register every new exploration in `lib/explorations.ts` so it surfaces on the `/explorations` index. The shared `app/explorations/layout.tsx` provides a minimal top-bar — the page itself owns everything below.
+
+## Data + types file layout (per-tab isolation)
+
+- `lib/mockData.ts` — Overview-specific data + shared formatters (`formatCompact`, `formatPercentDelta`, `formatSignedCompact`).
+- `lib/types.ts` — shared types (`SignedPercent`, `SignedCount`, `SeriesPoint`, `Platform`, `DateRangePreset`, plus Overview + Opportunity types kept here for back-compat).
+- `lib/data/<slug>.ts` — per-tab mock data. Tab-specific.
+- `lib/types/<slug>.ts` — per-tab types. Tab-specific.
+
+When building a new tab, put your mock data in `lib/data/<slug>.ts` and your types in `lib/types/<slug>.ts`. Don't touch the top-level shared files unless you're adding genuinely shared concepts.
+
+## Available primitives
+
+`@/components/ui` exports: `Button`, `Tag`, `Badge`, `Toggle`, `SegmentedControl`, `Input`, `Select`, `Tooltip`, `Card`, `Delta`, `Meter`, `Disclosure`, `EmptyState`, `Table`.
+
+`@/components/shell` exports: `Layout`, `Sidebar`, `PageHeader` (page title row), `SectionHeader` (title-outside-card row), `navSections`.
+
+`@/components/opportunities/OpportunityCard` — flat-list opportunity row, reusable across Overview + Opportunities.
+
+`@/components/charts/LineChart` — tiny inline SVG line chart for KPI surfaces.
+
+`@/components/ui/icons` — see file for the full export list. Imports from this module only; never from `@heroicons/react/*` directly.
+
+## Page composition pattern
+
+- Titled cards (What's New, Visibility Score) → use `<Card title=... subtitle=... action=...>` with content inside.
+- Section with title OUTSIDE the card (Top Keywords, Top Opportunities, Website Activity) → wrap in `<section className="space-y-20">` with `<SectionHeader>` then the content (Table, list, etc.) below.
+- Tables → use `<Table>` compound API (`Table.Head`, `Table.Body`, `Table.Row`, `Table.HeaderCell`, `Table.Cell`).
+- Page padding: `mx-auto max-w-1280 px-32 py-24 space-y-32`.
 
 ## Capture workflow (Profound)
 

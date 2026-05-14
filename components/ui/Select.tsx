@@ -17,7 +17,7 @@
  */
 
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
-import { ChevronDown, ChevronsUpDown } from "lucide-react";
+import { ChevronDownIcon, ChevronUpDownIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
 
 export type SelectSize = "sm" | "md";
@@ -59,7 +59,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
   },
   ref,
 ) {
-  const Chevron = multiple ? ChevronDown : ChevronsUpDown;
+  const Chevron = multiple ? ChevronDownIcon : ChevronUpDownIcon;
 
   return (
     <button
@@ -69,6 +69,9 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
       className={cn(
         "inline-flex items-center font-medium select-none whitespace-nowrap",
         "rounded-6 transition-colors duration-100",
+        // Tailwind v4 preflight strips the default `cursor: pointer` from
+        // <button> — opt back in so the select pill reads as clickable.
+        "cursor-pointer",
         "focus-visible:outline-none focus-visible:shadow-focus",
         active
           ? "bg-control-primary text-text-inverse shadow-flat"

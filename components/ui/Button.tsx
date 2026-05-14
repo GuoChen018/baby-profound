@@ -41,6 +41,22 @@ const iconOnlySizeStyles: Record<ButtonSize, string> = {
   lg: "size-38 p-11",
 };
 
+/**
+ * Per-size icon-slot dimensions for leading/trailing icons (NOT icon-only
+ * buttons — those use `iconOnlySizeStyles`). The slot must be small enough
+ * that the glyph reads as a peer of the label rather than crowding it; in
+ * Figma the trailing arrow is ~12px on `sm` buttons, not the full 16px.
+ *
+ *   sm (24h, 13px label) → 12px icon
+ *   md (28h, 13px label) → 14px icon
+ *   lg (38h, 13px label) → 16px icon
+ */
+const iconSlotStyles: Record<ButtonSize, string> = {
+  sm: "size-12",
+  md: "size-14",
+  lg: "size-16",
+};
+
 const variantStyles: Record<ButtonVariant, string> = {
   default: [
     "bg-control-bg text-text-primary",
@@ -91,6 +107,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       className={cn(
         "inline-flex items-center justify-center font-medium",
         "rounded-6 select-none",
+        // Tailwind v4's preflight resets `cursor` on <button> back to
+        // `default` (browsers don't apply pointer by default either).
+        // Profound's design system buttons should always read as
+        // clickable — `disabled:cursor-not-allowed` is layered in the
+        // variant styles below.
+        "cursor-pointer",
         "transition-colors duration-100",
         "focus-visible:outline-none focus-visible:shadow-focus",
         isIconOnly ? iconOnlySizeStyles[size] : sizeStyles[size],
@@ -99,9 +121,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       )}
       {...rest}
     >
-      {iconLeft ? <span className="inline-flex shrink-0 size-16">{iconLeft}</span> : null}
+      {iconLeft ? (
+        <span className={cn("inline-flex shrink-0", iconSlotStyles[size])}>
+          {iconLeft}
+        </span>
+      ) : null}
       {children ? <span className="whitespace-nowrap">{children}</span> : null}
-      {iconRight ? <span className="inline-flex shrink-0 size-16">{iconRight}</span> : null}
+      {iconRight ? (
+        <span className={cn("inline-flex shrink-0", iconSlotStyles[size])}>
+          {iconRight}
+        </span>
+      ) : null}
     </button>
   );
 });
